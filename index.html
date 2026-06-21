@@ -14,9 +14,9 @@
     --panel:#11141f;
     --panel-2:#161a28;
     --line:#222838;
-    --ink:#e9eef6;
-    --muted:#7e879c;
-    --muted-2:#525b71;
+    --ink:#eef2f9;
+    --muted:#9aa3bb;          /* 二次テキスト（コントラスト底上げ） */
+    --muted-2:#7b87a3;        /* 三次テキスト・補足（旧#525b71から底上げ） */
     --tone:#27d4c4;          /* スケール音 ティール */
     --tone-soft:rgba(39,212,196,.16);
     --tone-line:rgba(39,212,196,.55);
@@ -52,6 +52,22 @@
   }
 
   .wrap{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+
+  /* キーボード操作の可視フォーカス（アクセシビリティ） */
+  :focus{outline:none}
+  button:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+    outline:2.5px solid var(--tone);outline-offset:2px;border-radius:10px;
+  }
+  .seg.gold button:focus-visible{outline-color:var(--root)}
+  .seg.pink button:focus-visible,.chips button:focus-visible{outline-color:var(--accent)}
+
+  /* 読み込み時の段階表示（reduced-motion時は下部のメディアクエリで無効化） */
+  @keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;animation:riseIn .55s var(--ease) forwards}
+  .reveal.d1{animation-delay:.05s}
+  .reveal.d2{animation-delay:.13s}
+  .reveal.d3{animation-delay:.22s}
+  .reveal.d4{animation-delay:.32s}
 
   /* ── ヘッダー ── */
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px}
@@ -294,18 +310,20 @@
 
   @media (max-width:560px){
     .ctrl-row{gap:14px 18px}
-    .field>label{display:none}
+    .field{flex-direction:column;align-items:flex-start;gap:6px}
+    .field>label{font-size:10.5px}
     .now{display:none}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.001ms !important;transition-duration:.05ms !important}
+    .reveal{opacity:1 !important}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
+  <header class="reveal d1">
     <div class="brand">
       <div class="logo">PENTA<span class="dot">.</span></div>
       <div>
@@ -317,7 +335,7 @@
   </header>
 
   <!-- コントロール -->
-  <div class="controls">
+  <div class="controls reveal d2">
     <div class="ctrl-row">
       <div class="field">
         <label>スケール</label>
@@ -376,13 +394,13 @@
         </div>
       </div>
       <div class="spacer"></div>
-      <button class="btn-ghost" id="playBtn"><span class="ic">▶</span> 運指アニメ</button>
-      <button class="btn-ghost" id="soundBtn"><span class="ic" id="soundIc">🔊</span> 音 ON</button>
+      <button class="btn-ghost" id="playBtn" aria-label="運指アニメを再生"><span class="ic" aria-hidden="true">▶</span> 運指アニメ</button>
+      <button class="btn-ghost" id="soundBtn" aria-pressed="true" aria-label="音のオン・オフ"><span class="ic" id="soundIc" aria-hidden="true">🔊</span> 音 ON</button>
     </div>
   </div>
 
   <!-- ステージ -->
-  <div class="stage">
+  <div class="stage reveal d3">
     <div class="stage-head">
       <div>
         <div class="scale-title" id="scaleTitle">A <em>マイナー</em> ペンタトニック</div>
@@ -395,7 +413,7 @@
       </div>
     </div>
     <div class="board-scroll">
-      <svg class="board" id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      <svg class="board" id="board" role="img" aria-label="ギター指板。ペンタトニック・スケールのポジション表示" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
     <!-- クイズ -->
@@ -456,7 +474,7 @@
   </section>
 
   <!-- 暗記サポート -->
-  <section class="study">
+  <section class="study reveal d4">
     <div class="panel">
       <div class="panel-h">
         <span class="bar"></span>
@@ -899,10 +917,10 @@ function drawBoard(startFret, endFret, notes, ranges){
   for (let f=startFret; f<=endFret; f++){
     const x = xForFret(f, startFret);
     if (f===dbl || f===24){
-      svg += `<circle cx="${x}" cy="${midY-GEO.str*0.95}" r="5.5" fill="#222a3d"/>`;
-      svg += `<circle cx="${x}" cy="${midY+GEO.str*0.95}" r="5.5" fill="#222a3d"/>`;
+      svg += `<circle cx="${x}" cy="${midY-GEO.str*0.95}" r="6" fill="#2e3650"/>`;
+      svg += `<circle cx="${x}" cy="${midY+GEO.str*0.95}" r="6" fill="#2e3650"/>`;
     } else if (inlay.has(f)){
-      svg += `<circle cx="${x}" cy="${midY}" r="5.5" fill="#222a3d"/>`;
+      svg += `<circle cx="${x}" cy="${midY}" r="6" fill="#2e3650"/>`;
     }
   }
 
@@ -918,13 +936,13 @@ function drawBoard(startFret, endFret, notes, ranges){
     const y = yForString(s);
     const sw = 1.1 + (5-s)*0.42; // 低音弦ほど太く
     svg += `<line x1="${GEO.mL-GEO.fret/2}" y1="${y}" x2="${GEO.mL+cols*GEO.fret-GEO.fret/2}" y2="${y}" stroke="url(#strGrad)" stroke-width="${sw}"/>`;
-    svg += `<text x="16" y="${y+4.5}" text-anchor="middle" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#6b7693">${STRING_LABEL[s]}</text>`;
+    svg += `<text x="16" y="${y+4.5}" text-anchor="middle" font-family="JetBrains Mono" font-size="13.5" font-weight="700" fill="#9aa4bd">${STRING_LABEL[s]}</text>`;
   }
 
   // フレット番号
   for (let f=startFret; f<=endFret; f++){
     const x = xForFret(f, startFret);
-    svg += `<text x="${x}" y="${GEO.mT+5*GEO.str+30}" text-anchor="middle" fill="#525b71" font-family="JetBrains Mono" font-size="13" font-weight="600">${f}</text>`;
+    svg += `<text x="${x}" y="${GEO.mT+5*GEO.str+30}" text-anchor="middle" fill="#8893ad" font-family="JetBrains Mono" font-size="13.5" font-weight="700">${f}</text>`;
   }
 
   // defs（グラデーション）
@@ -951,7 +969,7 @@ function drawBoard(startFret, endFret, notes, ranges){
     }
     if (hidden){
       // 位置だけ薄く示す
-      svg += `<circle cx="${x}" cy="${y}" r="5" fill="#222a3d"/>`;
+      svg += `<circle cx="${x}" cy="${y}" r="5" fill="#2e3650"/>`;
       return;
     }
 
@@ -962,8 +980,8 @@ function drawBoard(startFret, endFret, notes, ranges){
       rr=GEO.r-3; dash=' stroke-dasharray="5 4"';
     } else if (n.muted){
       // ブロック外のスケール音（控えめ）
-      if (n.isRoot){ fill="rgba(255,206,58,0.12)"; stroke="rgba(255,206,58,0.45)"; txt="#b89a44"; }
-      else { fill="#181d2c"; stroke="#39425b"; txt="#6b7693"; }
+      if (n.isRoot){ fill="rgba(255,206,58,0.16)"; stroke="rgba(255,206,58,0.6)"; txt="#d8b455"; }
+      else { fill="#1e2435"; stroke="#4a5573"; txt="#9aa4bd"; }
       rr = GEO.r - 2;
     } else if (n.isRoot){
       fill = "var(--root)"; stroke="none"; txt="#1c1503";
@@ -1556,7 +1574,9 @@ function initControls(){
   document.getElementById("soundBtn").addEventListener("click", ()=>{
     state.sound=!state.sound;
     document.getElementById("soundIc").textContent = state.sound?"🔊":"🔇";
-    document.getElementById("soundBtn").lastChild.textContent = state.sound?" 音 ON":" 音 OFF";
+    const sb=document.getElementById("soundBtn");
+    sb.lastChild.textContent = state.sound?" 音 ON":" 音 OFF";
+    sb.setAttribute("aria-pressed", String(state.sound));
   });
   // 次の問題
   document.getElementById("nextBtn").addEventListener("click", newQuiz);
