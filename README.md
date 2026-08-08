@@ -42,4 +42,14 @@ open index.html
 
 ## デプロイ
 
-Vercel で静的サイトとしてホスティングしています。`main` ブランチへの push で自動デプロイされます。
+Vercel で静的サイトとしてホスティングしています。公開URL: https://guitar-pentatonic.vercel.app
+
+**GitHub 連携は未設定なので、`git push` だけでは反映されません。** CLI から本番へ反映します。
+
+```bash
+npx vercel --prod
+```
+
+デプロイ履歴の確認は `npx vercel ls`。
+
+> 補足: Vercel の Security Checkpoint（Bot対策）が有効なため、`curl` やヘッドレスブラウザでは公開URLの中身を取得できません。反映確認は実ブラウザで行ってください。
