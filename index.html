@@ -989,11 +989,19 @@ function buildNotes(rootPc, scale, posIndex){
 
 // スケール構成音（ルートから昇順）
 function scaleNotes(rootPc, scale, flat){
-  const ivs = scale==="major" ? [0,2,4,7,9] : [0,3,5,7,10];
-  const names = flat ? CHROMA_FLAT : CHROMA_SHARP;
-  return ivs.map(iv => names[(rootPc+iv)%12]);
+  const ivs  = scale==="major" ? [0,2,4,7,9] : [0,3,5,7,10];
+  const degs = scale==="major" ? ["1","2","3","5","6"] : ["1","♭3","4","5","♭7"];
+  return ivs.map((iv,i) => noteNameFor((rootPc+iv)%12, flat, degs[i]));
 }
 function noteName(pc, flat){ return (flat?CHROMA_FLAT:CHROMA_SHARP)[pc]; }
+// 度数の♭/♯に合わせて異名同音を選ぶ（C7 の♭7は A♯ ではなく B♭ と書く）
+function noteNameFor(pc, keyFlat, degree){
+  if (typeof degree === "string"){
+    if (degree.includes("♭")) return CHROMA_FLAT[pc];
+    if (degree.includes("♯")) return CHROMA_SHARP[pc];
+  }
+  return noteName(pc, keyFlat);
+}
 
 /* ============================================================
    状態
@@ -1321,7 +1329,7 @@ function drawBoard(startFret, endFret, notes, ranges){
   notes.forEach((n, idx) => {
     const x = xForFret(n.fret, startFret);
     const y = yForString(n.string);
-    let label = showName ? noteName(n.pc, flat) : n.degree;
+    let label = showName ? noteNameFor(n.pc, flat, n.degree) : n.degree;
     let cls = "note";
     let hidden = false;
     let isQ = false;
@@ -1409,9 +1417,10 @@ const LEGEND_ROLE  = `<span><i class="swatch root"></i>R（ルート）</span><s
 
 // コードの構成音を「度数ラベル」「音名」の配列で返す
 function chordSpell(t, k){
+  const degs = t.ivs.map(iv => degLabel(t, iv));
   return {
-    degs: t.ivs.map(iv => degLabel(t, iv)),
-    names: t.ivs.map(iv => noteName((k.pc+iv)%12, k.flat)),
+    degs,
+    names: t.ivs.map((iv,i) => noteNameFor((k.pc+iv)%12, k.flat, degs[i])),
   };
 }
 
@@ -1438,7 +1447,7 @@ function updateChrome(){
   } else if (isChord){
     const t = CHORD_TYPES[state.chordType];
     const cname = k.label + t.suffix;
-    const spell = t.ivs.map(iv=>noteName((k.pc+iv)%12, k.flat));
+    const spell = chordSpell(t, k).names;
     document.getElementById("scaleTitle").innerHTML = `${cname} <em>×</em> ${k.label} ${scLabel}ペンタ`;
     document.getElementById("scaleNotes").textContent =
       `コード ${spell.join(" ")} ｜ ペンタ ${scaleNotes(k.pc, state.scale, k.flat).join(" ")}`;
@@ -1614,8 +1623,8 @@ function renderChordPanel(){
   const t = CHORD_TYPES[state.chordType];
   const cname = k.label + t.suffix;
   const scLabel = t.penta==="major" ? "メジャー" : "マイナー";
-  const spell = t.ivs.map(iv=>noteName((k.pc+iv)%12, k.flat));
-  document.getElementById("chordSpell").textContent = `${cname} = ${spell.join("・")}`;
+  const sp = chordSpell(t, k);
+  document.getElementById("chordSpell").textContent = `${cname} = ${sp.names.join("・")}`;
 
   // ダイアグラム
   currentVoicings = voicingsFor(k.pc, state.chordType);
@@ -1635,7 +1644,7 @@ function renderChordPanel(){
     const lab = degLabel(t, iv);
     rows += `<div class="deg-row${iv===0?' is-root':''}">
       <span class="d-deg${lab.length>=3?' sm':''}">${lab}</span>
-      <span class="d-note">${noteName((k.pc+iv)%12, k.flat)}</span>
+      <span class="d-note">${noteNameFor((k.pc+iv)%12, k.flat, lab)}</span>
       <span class="pin ${inP?'in':'out'}">${inP?'ペンタ内':'ペンタ外'}</span>
     </div>`;
   });
@@ -2098,8 +2107,10 @@ function newQuiz(){
   let options=[];
   if (askName){
     const flat = KEYS[state.keyIndex].flat;
-    const correct = noteName(target.pc, flat);
-    const pool = (flat?CHROMA_FLAT:CHROMA_SHARP).filter(x=>x!==correct);
+    const correct = noteNameFor(target.pc, flat, target.degree);
+    // 正解の表記に選択肢を揃え、同じ音の別表記（A♯/B♭）が混ざらないよう除外
+    const names = correct.includes("♭") ? CHROMA_FLAT : (correct.includes("#") ? CHROMA_SHARP : (flat?CHROMA_FLAT:CHROMA_SHARP));
+    const pool = names.filter((x,i)=> i !== target.pc);
     options = shuffle([correct, ...pickN(pool,3)]);
     var qText = `ハイライトされた音の<b>音名</b>は？`;
     var answer = correct;
