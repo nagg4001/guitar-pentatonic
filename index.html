@@ -97,13 +97,14 @@
     padding:16px clamp(14px,3vw,22px);
     box-shadow:0 24px 60px -34px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.03);
   }
+  .controls>*{min-width:0} /* gridの子が中身の最小幅で画面を押し広げるのを防ぐ */
   .ctrl-row{display:flex;align-items:center;gap:18px 26px;flex-wrap:wrap}
   .field{display:flex;align-items:center;gap:10px}
   .field[hidden]{display:none}
   .field>label{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
 
   /* セグメント */
-  .seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;gap:3px}
+  .seg{display:inline-flex;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;gap:3px}
   .seg button{
     font-family:inherit;font-size:15px;font-weight:600;color:var(--muted);
     background:transparent;border:0;border-radius:9px;padding:10px 18px;cursor:pointer;
@@ -230,6 +231,7 @@
   .deg-row:hover{border-color:var(--tone-line);background:var(--tone-soft)}
   .deg-row.is-root{border-color:rgba(255,206,58,.42);background:rgba(255,206,58,.08)}
   .deg-row.is-root:hover{background:rgba(255,206,58,.13)}
+  .d-deg.sm{font-size:13px}
   .d-deg{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:17px;
     width:42px;height:42px;display:grid;place-items:center;border-radius:50%;
     background:var(--tone-soft);color:var(--tone);border:2px solid var(--tone-line)}
@@ -282,6 +284,103 @@
   .pin.out{color:var(--accent);background:rgba(255,92,138,.1);border:1px dashed rgba(255,92,138,.6)}
   .chord-sec .hl{color:var(--tone);font-weight:700}
   @media (max-width:760px){ .chord-sec{grid-template-columns:1fr} }
+
+  /* ── トーンモード（コードトーンの音階練習） ── */
+  /* 度数の役割カラー：ルート＝金／3rd＝ピンク（明暗を決める）／5th＝ブルー／7th＝パープル／テンション＝ティール */
+  :root{
+    --role-3:#ff5c8a;
+    --role-5:#4d9bff;
+    --role-7:#b07cff;
+    --role-t:#27d4c4;
+  }
+  .swatch.r3{background:var(--role-3);box-shadow:0 0 10px var(--role-3)}
+  .swatch.r5{background:var(--role-5);box-shadow:0 0 10px var(--role-5)}
+  .swatch.r7{background:var(--role-7);box-shadow:0 0 10px var(--role-7)}
+  .swatch.rt{background:transparent;border:2px solid var(--role-t)}
+
+  .tone-sec{display:none;margin-top:22px}
+  .tone-sec.on{display:grid;grid-template-columns:1fr 1fr;gap:18px;animation:fadeUp .4s var(--ease)}
+  .tone-sec .wide{grid-column:1/-1}
+  /* gridの子はデフォルトで中身の最小幅まで広がるため、早見表が画面を押し広げないよう抑える */
+  .tone-sec .panel{min-width:0}
+  @media (max-width:860px){ .tone-sec.on{grid-template-columns:1fr} }
+
+  /* 練習コントロール */
+  .prac{display:flex;align-items:center;gap:12px 14px;flex-wrap:wrap}
+  .tempo{display:flex;align-items:center;gap:10px;font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--muted)}
+  .tempo b{color:var(--tone);font-size:16px;font-weight:800;min-width:32px;text-align:right}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:150px;height:5px;border-radius:3px;
+    background:linear-gradient(90deg,var(--tone) 0%,var(--tone) var(--fill,50%),var(--line) var(--fill,50%));
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;
+    background:var(--ink);border:3px solid var(--tone);box-shadow:0 0 12px -2px var(--tone);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--ink);border:3px solid var(--tone);cursor:pointer;
+  }
+  .prac-note{margin-top:14px;font-size:12.5px;color:var(--muted-2);line-height:1.7}
+  .prac-note .hl{color:var(--tone);font-weight:700}
+  .prac-note .hg{color:var(--root);font-weight:700}
+
+  /* 半音の付け替えチェーン */
+  .chains{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:4px 22px;align-items:start}
+  .chain{display:flex;align-items:stretch;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .chain-node{
+    font-family:"JetBrains Mono",monospace;font-weight:800;font-size:14px;color:var(--muted);
+    background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 13px;cursor:pointer;
+    transition:.16s var(--ease);white-space:nowrap;
+  }
+  .chain-node:hover{color:var(--ink);border-color:var(--tone-line);background:var(--tone-soft)}
+  .chain-node[aria-pressed="true"]{color:#05121a;background:var(--tone);border-color:var(--tone);box-shadow:0 0 20px -5px var(--tone)}
+  .chain-arrow{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-size:10.5px;color:var(--accent);font-weight:700;padding:0 3px;min-width:74px;line-height:1.25;text-align:center;
+  }
+  .chain-arrow i{font-style:normal;font-size:14px;color:var(--muted-2)}
+  .chain-title{font-size:13px;color:var(--muted);margin:16px 0 9px;font-weight:600}
+  .chain-title:first-child{margin-top:0}
+
+  /* 3度堆積のスタック図 */
+  .stack{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:2px 0 4px}
+  .stack-step{display:flex;align-items:center}
+  .stack-deg{
+    font-family:"JetBrains Mono",monospace;font-weight:800;font-size:15px;
+    width:44px;height:44px;display:grid;place-items:center;border-radius:50%;
+    background:var(--tone-soft);color:var(--tone);border:2px solid var(--tone-line);
+  }
+  .stack-deg.root{background:var(--root-soft);color:var(--root);border-color:rgba(255,206,58,.6)}
+  .stack-deg.off{background:transparent;color:var(--muted-2);border-color:var(--line);border-style:dashed}
+  .stack-arr{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--muted-2);padding:0 5px;text-align:center;line-height:1.3}
+  .stack-arr b{display:block;color:var(--accent);font-size:11px}
+
+  /* 度数マトリクス（全コードの構成音一覧） */
+  .mtx-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:13px}
+  table.mtx{border-collapse:collapse;width:100%;font-family:"JetBrains Mono",monospace;font-size:12px}
+  table.mtx th,table.mtx td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.mtx thead th{position:sticky;top:0;background:var(--panel);color:var(--muted-2);font-size:10.5px;font-weight:700;letter-spacing:.04em;z-index:1}
+  table.mtx tbody th{text-align:left;padding-left:12px;color:var(--ink);font-weight:700;font-size:12.5px;
+    position:sticky;left:0;background:var(--panel-2);z-index:1}
+  table.mtx tbody tr.on{background:var(--tone-soft)}
+  table.mtx tbody tr.on th{color:var(--tone);background:rgba(39,212,196,.13)}
+  table.mtx tbody tr[data-type]:hover{background:rgba(255,255,255,.04)}
+  table.mtx td.y{color:var(--tone);font-weight:800}
+  table.mtx td.y.r{color:var(--root)}
+  table.mtx td.n{color:#2b3247}
+  table.mtx .cat-row th{position:static;background:var(--bg-2);color:var(--accent);font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;text-align:left}
+
+  /* コードのカテゴリタブ */
+  .cat-seg{display:inline-flex;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;gap:3px}
+  .cat-seg button{
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted);
+    background:transparent;border:0;border-radius:9px;padding:9px 14px;cursor:pointer;transition:.2s var(--ease);white-space:nowrap;
+  }
+  .cat-seg button:hover{color:var(--ink)}
+  .cat-seg button[aria-pressed="true"]{color:#22070f;background:var(--accent);box-shadow:0 0 20px -5px rgba(255,92,138,.55)}
+  .cat-seg button:focus-visible{outline-color:var(--accent)}
 
   /* ── ソングモード（曲のコード進行チャート） ── */
   .song-sec{display:none;margin-top:22px}
@@ -348,7 +447,7 @@
         <label>キー</label>
         <select id="keySel" aria-label="キー"></select>
       </div>
-      <div class="field">
+      <div class="field" id="posField">
         <label>ポジション</label>
         <div class="seg pos-seg gold" id="posSeg">
           <button data-pos="0" aria-pressed="true">1</button>
@@ -360,8 +459,12 @@
       </div>
     </div>
 
-    <!-- コードピッカー（コードモードのみ）: ルート文字タブ → ルート×タイプのチップ -->
+    <!-- コードピッカー（コード／トーンモード）: 種類タブ → ルート文字タブ → ルート×タイプのチップ -->
     <div class="picker" id="chordPicker" hidden>
+      <div class="field">
+        <label>種類</label>
+        <div class="cat-seg" id="catSeg"></div>
+      </div>
       <div class="field">
         <label>コードキー</label>
         <div class="seg pos-seg" id="letterSeg"></div>
@@ -381,7 +484,16 @@
         <label>範囲</label>
         <div class="seg" id="viewSeg">
           <button data-view="box" aria-pressed="true">ボックス</button>
+          <button data-view="form" aria-pressed="false" hidden>フォーム</button>
           <button data-view="full" aria-pressed="false">全フレット</button>
+        </div>
+      </div>
+      <div class="field" id="formField" hidden>
+        <label>ルート弦</label>
+        <div class="seg pos-seg gold" id="formSeg">
+          <button data-form="0" aria-pressed="true">6弦</button>
+          <button data-form="1" aria-pressed="false">5弦</button>
+          <button data-form="2" aria-pressed="false">4弦</button>
         </div>
       </div>
       <div class="field">
@@ -390,6 +502,7 @@
           <button data-mode="learn" aria-pressed="true">学習</button>
           <button data-mode="quiz" aria-pressed="false">クイズ</button>
           <button data-mode="chord" aria-pressed="false">コード</button>
+          <button data-mode="tone" aria-pressed="false">トーン</button>
           <button data-mode="song" aria-pressed="false">ソング</button>
         </div>
       </div>
@@ -406,7 +519,7 @@
         <div class="scale-title" id="scaleTitle">A <em>マイナー</em> ペンタトニック</div>
         <div class="scale-sub" id="scaleNotes">A C D E G</div>
       </div>
-      <div class="legend">
+      <div class="legend" id="legend">
         <span><i class="swatch root"></i>ルート音</span>
         <span><i class="swatch tone"></i>スケール音</span>
         <span id="legendCt" style="display:none"><i class="swatch ct"></i>コードトーン</span>
@@ -455,6 +568,63 @@
     </div>
   </section>
 
+  <!-- トーン（コードトーンの音階練習） -->
+  <section class="tone-sec" id="toneSec">
+    <div class="panel wide">
+      <div class="panel-h">
+        <span class="bar"></span>
+        <h3>アルペジオ練習</h3>
+        <span class="sub" id="toneSub"></span>
+      </div>
+      <div class="prac">
+        <button class="btn-ghost" id="toneUp"><span class="ic">▶</span> 上昇</button>
+        <button class="btn-ghost" id="toneDown"><span class="ic">▶</span> 下降</button>
+        <button class="btn-ghost" id="toneBoth"><span class="ic">▶</span> 上昇→下降</button>
+        <button class="btn-ghost" id="toneLoopBtn" aria-pressed="false"><span class="ic">↻</span> ループ OFF</button>
+        <div class="tempo">
+          <label for="tempoRange">テンポ</label>
+          <input type="range" id="tempoRange" min="40" max="200" step="2" value="88" aria-label="テンポ（BPM）" />
+          <b id="tempoVal">88</b> BPM
+        </div>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="toneQuizBtn" aria-pressed="false"><span class="ic">?</span> クイズ OFF</button>
+        <button class="btn-ghost" id="tonePentaBtn" aria-pressed="false"><span class="ic">◌</span> ペンタ重ね OFF</button>
+      </div>
+      <p class="prac-note" id="toneNote"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <span class="bar pink"></span>
+        <h3>コードトーンの規則性</h3>
+      </div>
+      <div class="chain-title">① 3度堆積 — スケールを1つ飛ばしで積むだけ</div>
+      <div class="stack" id="stackFig"></div>
+      <p class="prac-note" id="stackNote"></p>
+      <div class="chain-title">② 半音ひとつでコードが変わる</div>
+      <div class="chains" id="chainFig"></div>
+      <p class="prac-note" id="chainNote"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <span class="bar"></span>
+        <h3>指板の位置で覚える規則</h3>
+      </div>
+      <ul class="tips" id="fretRules"></ul>
+    </div>
+
+    <div class="panel wide">
+      <div class="panel-h">
+        <span class="bar pink"></span>
+        <h3>コード構成音 早見表</h3>
+        <span class="sub">● ＝ 構成音／行をタップで切替</span>
+      </div>
+      <div class="mtx-scroll" id="mtxWrap"></div>
+      <p class="prac-note">同じ列に ● が並ぶコードは<span class="hl">近い響き</span>。●の位置が1つズレただけのコード同士は、指を1本半音動かすだけで行き来できます。</p>
+    </div>
+  </section>
+
   <!-- ソング（曲のコード進行チャート） -->
   <section class="song-sec" id="songSec">
     <div class="panel">
@@ -495,7 +665,7 @@
   </section>
 
   <footer>
-    クリックで音が鳴る · 5ポジション全対応 · コード表⇄ペンタ対応 · 曲のコード進行チャート · 度数⇄音名トグル &nbsp;|&nbsp; ローカルで完結（依存ゼロ）
+    クリックで音が鳴る · 5ポジション全対応 · コード38種のコードトーン練習 · 押さえ方ダイアグラム · 曲のコード進行チャート · 度数⇄音名トグル &nbsp;|&nbsp; ローカルで完結（依存ゼロ）
   </footer>
 </div>
 
@@ -536,26 +706,100 @@ const MINOR_BOX = [
 const POS_BASE_OFFSET = [0,2,4,7,9]; // 各ボックスのminFret = baseFret + これ
 
 /* ── コード理論データ ── */
+// ivs は「ルートからの半音数」。12 を超える値は上部構造（9th/11th/13th）を意味し、
+// 音の位置は %12 で、度数表記は生の値で決まる（例: 2=2度＝sus2 / 14=9th）
+const EXT_LABEL = {
+  0:"R", 1:"♭9", 2:"2", 3:"♭3", 4:"3", 5:"4", 6:"♭5", 7:"5", 8:"♯5", 9:"6", 10:"♭7", 11:"7",
+  13:"♭9", 14:"9", 15:"♯9", 17:"11", 18:"♯11", 20:"♭13", 21:"13",
+};
+// カテゴリ（コードピッカーのタブ順）
+const CHORD_CATS = [
+  {id:"triad", label:"トライアド"},
+  {id:"7th",   label:"セブンス"},
+  {id:"six",   label:"6th・add"},
+  {id:"ninth", label:"9th"},
+  {id:"ext",   label:"11th・13th"},
+  {id:"alt",   label:"オルタード"},
+];
 // タイプごとの構成インターバルと対応ペンタ（メジャー系→メジャーペンタ／マイナー系→マイナーペンタ）
 const CHORD_TYPES = {
-  M:    {suffix:"",     name:"メジャー",             ivs:[0,4,7],      penta:"major"},
-  m:    {suffix:"m",    name:"マイナー",             ivs:[0,3,7],      penta:"minor"},
-  "7":  {suffix:"7",    name:"セブンス",             ivs:[0,4,7,10],   penta:"major"},
-  m7:   {suffix:"m7",   name:"マイナーセブンス",     ivs:[0,3,7,10],   penta:"minor"},
-  maj7: {suffix:"maj7", name:"メジャーセブンス",     ivs:[0,4,7,11],   penta:"major"},
-  sus4: {suffix:"sus4", name:"サスフォー",           ivs:[0,5,7],      penta:"major"},
-  sus2: {suffix:"sus2", name:"サスツー",             ivs:[0,2,7],      penta:"major"},
-  "6":  {suffix:"6",    name:"シックス",             ivs:[0,4,7,9],    penta:"major"},
-  m6:   {suffix:"m6",   name:"マイナーシックス",     ivs:[0,3,7,9],    penta:"minor"},
-  add9: {suffix:"add9", name:"アドナイン",           ivs:[0,2,4,7],    penta:"major"},
-  "9":  {suffix:"9",    name:"ナインス",             ivs:[0,2,4,7,10], penta:"major"},
-  dim:  {suffix:"dim",  name:"ディミニッシュ",       ivs:[0,3,6],      penta:"minor"},
-  m7b5: {suffix:"m7♭5", name:"ハーフディミニッシュ", ivs:[0,3,6,10],   penta:"minor"},
-  aug:  {suffix:"aug",  name:"オーギュメント",       ivs:[0,4,8],      penta:"major"},
+  /* ── トライアド ── */
+  "5":      {suffix:"5",      name:"パワーコード",           ivs:[0,7],              penta:"major", cat:"triad"},
+  M:        {suffix:"",       name:"メジャー",               ivs:[0,4,7],            penta:"major", cat:"triad"},
+  m:        {suffix:"m",      name:"マイナー",               ivs:[0,3,7],            penta:"minor", cat:"triad"},
+  sus4:     {suffix:"sus4",   name:"サスフォー",             ivs:[0,5,7],            penta:"major", cat:"triad"},
+  sus2:     {suffix:"sus2",   name:"サスツー",               ivs:[0,2,7],            penta:"major", cat:"triad"},
+  dim:      {suffix:"dim",    name:"ディミニッシュ",         ivs:[0,3,6],            penta:"minor", cat:"triad"},
+  aug:      {suffix:"aug",    name:"オーギュメント",         ivs:[0,4,8],            penta:"major", cat:"triad"},
+  /* ── セブンス ── */
+  maj7:     {suffix:"maj7",   name:"メジャーセブンス",       ivs:[0,4,7,11],         penta:"major", cat:"7th"},
+  "7":      {suffix:"7",      name:"セブンス（ドミナント）", ivs:[0,4,7,10],         penta:"major", cat:"7th"},
+  m7:       {suffix:"m7",     name:"マイナーセブンス",       ivs:[0,3,7,10],         penta:"minor", cat:"7th"},
+  m7b5:     {suffix:"m7♭5",   name:"ハーフディミニッシュ",   ivs:[0,3,6,10],         penta:"minor", cat:"7th"},
+  dim7:     {suffix:"dim7",   name:"ディミニッシュセブンス", ivs:[0,3,6,9],          penta:"minor", cat:"7th", lbl:{9:"°7"}},
+  mM7:      {suffix:"mM7",    name:"マイナーメジャーセブン", ivs:[0,3,7,11],         penta:"minor", cat:"7th"},
+  "7sus4":  {suffix:"7sus4",  name:"セブンス・サスフォー",   ivs:[0,5,7,10],         penta:"major", cat:"7th"},
+  maj7s5:   {suffix:"maj7♯5", name:"メジャーセブンス♯5",     ivs:[0,4,8,11],         penta:"major", cat:"7th"},
+  /* ── 6th・add ── */
+  "6":      {suffix:"6",      name:"シックス",               ivs:[0,4,7,9],          penta:"major", cat:"six"},
+  m6:       {suffix:"m6",     name:"マイナーシックス",       ivs:[0,3,7,9],          penta:"minor", cat:"six"},
+  "69":     {suffix:"6/9",    name:"シックス・ナインス",     ivs:[0,4,7,9,14],       penta:"major", cat:"six"},
+  m69:      {suffix:"m6/9",   name:"マイナー6/9",            ivs:[0,3,7,9,14],       penta:"minor", cat:"six"},
+  add9:     {suffix:"add9",   name:"アドナイン",             ivs:[0,4,7,14],         penta:"major", cat:"six"},
+  madd9:    {suffix:"madd9",  name:"マイナー・アドナイン",   ivs:[0,3,7,14],         penta:"minor", cat:"six"},
+  add4:     {suffix:"add4",   name:"アドフォー",             ivs:[0,4,5,7],          penta:"major", cat:"six"},
+  /* ── 9th ── */
+  "9":      {suffix:"9",      name:"ナインス",               ivs:[0,4,7,10,14],      penta:"major", cat:"ninth"},
+  maj9:     {suffix:"maj9",   name:"メジャーナインス",       ivs:[0,4,7,11,14],      penta:"major", cat:"ninth"},
+  m9:       {suffix:"m9",     name:"マイナーナインス",       ivs:[0,3,7,10,14],      penta:"minor", cat:"ninth"},
+  mM9:      {suffix:"mM9",    name:"マイナーメジャー9th",    ivs:[0,3,7,11,14],      penta:"minor", cat:"ninth"},
+  "9sus4":  {suffix:"9sus4",  name:"ナインス・サスフォー",   ivs:[0,5,7,10,14],      penta:"major", cat:"ninth"},
+  /* ── 11th・13th ── */
+  "11":     {suffix:"11",     name:"イレブンス（3度省略）",  ivs:[0,7,10,14,17],     penta:"major", cat:"ext"},
+  m11:      {suffix:"m11",    name:"マイナーイレブンス",     ivs:[0,3,7,10,14,17],   penta:"minor", cat:"ext"},
+  "13":     {suffix:"13",     name:"サーティーンス",         ivs:[0,4,7,10,14,21],   penta:"major", cat:"ext"},
+  maj13:    {suffix:"maj13",  name:"メジャーサーティーンス", ivs:[0,4,7,11,14,21],   penta:"major", cat:"ext"},
+  m13:      {suffix:"m13",    name:"マイナー13th",           ivs:[0,3,7,10,14,21],   penta:"minor", cat:"ext"},
+  /* ── オルタード ── */
+  "7b9":    {suffix:"7♭9",    name:"セブンス♭9",             ivs:[0,4,7,10,13],      penta:"major", cat:"alt"},
+  "7s9":    {suffix:"7♯9",    name:"セブンス♯9",             ivs:[0,4,7,10,15],      penta:"major", cat:"alt"},
+  "7b5":    {suffix:"7♭5",    name:"セブンス♭5",             ivs:[0,4,6,10],         penta:"major", cat:"alt"},
+  "7s5":    {suffix:"7♯5",    name:"オーギュメント・セブン", ivs:[0,4,8,10],         penta:"major", cat:"alt"},
+  "7s11":   {suffix:"7♯11",   name:"セブンス♯11（リディアン♭7）", ivs:[0,4,7,10,18], penta:"major", cat:"alt"},
+  maj7s11:  {suffix:"maj7♯11",name:"メジャーセブンス♯11",    ivs:[0,4,7,11,18],      penta:"major", cat:"alt"},
 };
-// 表示順（Object.keys は数字キーが先頭に来てしまうため明示）
-const CHORD_TYPE_ORDER = ["M","m","7","m7","maj7","sus4","sus2","6","m6","add9","9","dim","m7b5","aug"];
-const CHORD_IV_LABEL = {0:"R", 2:"9", 3:"♭3", 4:"3", 5:"4", 6:"♭5", 7:"5", 8:"♯5", 9:"6", 10:"♭7", 11:"7"};
+const CHORD_TYPE_ORDER = Object.keys(CHORD_TYPES);
+function typesOfCat(cat){ return CHORD_TYPE_ORDER.filter(id => CHORD_TYPES[id].cat === cat); }
+
+// インターバル値 → そのコードでの度数表記（dim7 の °7 のような例外は lbl で上書き）
+function degLabel(t, iv){ return (t.lbl && t.lbl[iv]) || EXT_LABEL[iv] || "?"; }
+// ペンタトニックの構成インターバル
+function pentaIvSet(penta){ return new Set(penta==="major" ? [0,2,4,7,9] : [0,3,5,7,10]); }
+
+// コードタイプ → { ピッチクラス: 度数ラベル }（同じpcが重複したら低いivsを優先）
+function toneLabels(t){
+  const m = {};
+  for (const iv of t.ivs){
+    const pc = ((iv % 12) + 12) % 12;
+    if (!(pc in m)) m[pc] = (t.lbl && t.lbl[iv]) || EXT_LABEL[iv] || "?";
+  }
+  return m;
+}
+// 度数ラベル → 役割（指板の色分けに使う）
+function toneRole(label){
+  if (label === "R") return "root";
+  if (label === "3" || label === "♭3") return "third";
+  if (label === "5" || label === "♭5" || label === "♯5") return "fifth";
+  if (label === "7" || label === "♭7" || label === "°7") return "seventh";
+  return "tension";
+}
+const ROLE_COLOR = {
+  root:    {fill:"var(--root)",              stroke:"none",          txt:"#1c1503"},
+  third:   {fill:"rgba(255,92,138,.20)",     stroke:"var(--role-3)", txt:"#ffc2d5"},
+  fifth:   {fill:"rgba(77,155,255,.18)",     stroke:"var(--role-5)", txt:"#c3daff"},
+  seventh: {fill:"rgba(176,124,255,.18)",    stroke:"var(--role-7)", txt:"#ddc9ff"},
+  tension: {fill:"rgba(39,212,196,.15)",     stroke:"var(--role-t)", txt:"#bff7f1"},
+};
 
 // オープンコード辞書 key="pc:type"（frets/fingers は6弦→1弦、-1=ミュート、0=開放）
 const OPEN_CHORDS = {
@@ -604,32 +848,78 @@ const OPEN_CHORDS = {
 };
 
 // バレーコード形（offは基準フレットからの相対、null=ミュート、6弦→1弦）
+// 5声以上のコードは実用フォームに合わせて5度・11thなどを省略している
 const EFORM = { // 6弦ルート
-  M:    {off:[0,2,2,1,0,0],          fin:[1,3,4,2,1,1],    barre:true},
-  m:    {off:[0,2,2,0,0,0],          fin:[1,3,4,1,1,1],    barre:true},
-  "7":  {off:[0,2,0,1,0,0],          fin:[1,3,1,2,1,1],    barre:true},
-  m7:   {off:[0,2,0,0,0,0],          fin:[1,3,1,1,1,1],    barre:true},
-  maj7: {off:[0,null,1,1,0,null],    fin:[1,0,3,4,2,0],    barre:false},
-  sus4: {off:[0,2,2,2,0,0],          fin:[1,2,3,4,1,1],    barre:true},
-  "6":  {off:[0,null,-1,1,0,null],   fin:[2,0,1,4,3,0],    barre:false}, // ジャズ定番形
-  m6:   {off:[0,2,2,0,2,0],          fin:[1,2,3,1,4,1],    barre:true},
-  m7b5: {off:[0,null,0,0,-1,null],   fin:[2,0,3,4,1,0],    barre:false},
+  "5":      {off:[0,2,2,null,null,null], fin:[1,3,4,0,0,0],  barre:false},
+  M:        {off:[0,2,2,1,0,0],          fin:[1,3,4,2,1,1],  barre:true},
+  m:        {off:[0,2,2,0,0,0],          fin:[1,3,4,1,1,1],  barre:true},
+  sus4:     {off:[0,2,2,2,0,0],          fin:[1,2,3,4,1,1],  barre:true},
+  aug:      {off:[0,3,2,1,null,null],    fin:[1,4,3,2,0,0],  barre:false},
+  maj7:     {off:[0,null,1,1,0,null],    fin:[1,0,3,4,2,0],  barre:false},
+  "7":      {off:[0,2,0,1,0,0],          fin:[1,3,1,2,1,1],  barre:true},
+  m7:       {off:[0,2,0,0,0,0],          fin:[1,3,1,1,1,1],  barre:true},
+  m7b5:     {off:[0,null,0,0,-1,null],   fin:[2,0,3,4,1,0],  barre:false},
+  dim7:     {off:[0,null,-1,0,-1,null],  fin:[3,0,1,4,2,0],  barre:false},
+  mM7:      {off:[0,null,1,0,0,0],       fin:[1,0,3,1,1,1],  barre:true},
+  "7sus4":  {off:[0,2,0,2,0,0],          fin:[1,3,1,4,1,1],  barre:true},
+  maj7s5:   {off:[0,null,1,1,1,null],    fin:[1,0,2,3,4,0],  barre:false},
+  "6":      {off:[0,null,-1,1,0,null],   fin:[2,0,1,4,3,0],  barre:false}, // ジャズ定番形
+  m6:       {off:[0,2,2,0,2,0],          fin:[1,2,3,1,4,1],  barre:true},
+  add4:     {off:[0,0,2,1,0,0],          fin:[1,1,4,3,1,1],  barre:true},
+  "9":      {off:[0,null,0,1,0,2],       fin:[1,0,1,2,1,4],  barre:true},
+  maj9:     {off:[0,null,1,1,0,2],       fin:[1,0,2,3,1,4],  barre:true},
+  m9:       {off:[0,null,0,0,0,2],       fin:[1,0,1,1,1,4],  barre:true},
+  "9sus4":  {off:[0,null,0,2,0,2],       fin:[1,0,1,3,1,4],  barre:true},
+  "11":     {off:[0,null,0,2,0,2],       fin:[1,0,1,3,1,4],  barre:true},
+  "13":     {off:[0,null,0,1,2,null],    fin:[1,0,1,2,4,0],  barre:true},
+  maj13:    {off:[0,null,1,1,2,null],    fin:[1,0,2,3,4,0],  barre:false},
+  m13:      {off:[0,null,0,0,2,null],    fin:[1,0,1,1,4,0],  barre:true},
+  "7b9":    {off:[0,null,0,1,0,1],       fin:[1,0,1,3,1,2],  barre:true},
+  "7s9":    {off:[0,null,0,1,null,3],    fin:[1,0,1,2,0,4],  barre:true},
+  "7b5":    {off:[0,null,0,1,-1,null],   fin:[2,0,3,4,1,0],  barre:false},
+  "7s5":    {off:[0,null,0,1,1,null],    fin:[1,0,1,2,3,0],  barre:true},
+  "7s11":   {off:[0,null,0,1,-1,null],   fin:[2,0,3,4,1,0],  barre:false}, // ♯11＝♭5と同じ音
+  maj7s11:  {off:[0,null,1,1,-1,null],   fin:[2,0,3,4,1,0],  barre:false},
 };
 const AFORM = { // 5弦ルート
-  M:    {off:[null,0,2,2,2,0],       fin:[0,1,2,3,4,1],    barre:true},
-  m:    {off:[null,0,2,2,1,0],       fin:[0,1,3,4,2,1],    barre:true},
-  "7":  {off:[null,0,2,0,2,0],       fin:[0,1,3,1,4,1],    barre:true},
-  m7:   {off:[null,0,2,0,1,0],       fin:[0,1,3,1,2,1],    barre:true},
-  maj7: {off:[null,0,2,1,2,0],       fin:[0,1,3,2,4,1],    barre:true},
-  sus4: {off:[null,0,2,2,3,0],       fin:[0,1,2,3,4,1],    barre:true},
-  sus2: {off:[null,0,2,2,0,0],       fin:[0,1,3,4,1,1],    barre:true},
-  "6":  {off:[null,0,2,2,2,2],       fin:[0,1,3,3,3,3],    barre:false}, // 薬指セーハ
-  m6:   {off:[null,0,2,-1,1,null],   fin:[0,2,4,1,3,0],    barre:false},
-  add9: {off:[null,0,2,4,2,0],       fin:[0,1,2,4,3,1],    barre:true},
-  "9":  {off:[null,0,-1,0,0,0],      fin:[0,2,1,3,3,3],    barre:false}, // 薬指セーハ
-  dim:  {off:[null,0,1,2,1,null],    fin:[0,1,2,4,3,0],    barre:false},
-  m7b5: {off:[null,0,1,0,1,null],    fin:[0,1,3,2,4,0],    barre:false},
-  aug:  {off:[null,0,3,2,2,null],    fin:[0,1,4,2,3,0],    barre:false},
+  "5":      {off:[null,0,2,2,null,null], fin:[0,1,3,4,0,0],  barre:false},
+  M:        {off:[null,0,2,2,2,0],       fin:[0,1,2,3,4,1],  barre:true},
+  m:        {off:[null,0,2,2,1,0],       fin:[0,1,3,4,2,1],  barre:true},
+  sus4:     {off:[null,0,2,2,3,0],       fin:[0,1,2,3,4,1],  barre:true},
+  sus2:     {off:[null,0,2,2,0,0],       fin:[0,1,3,4,1,1],  barre:true},
+  dim:      {off:[null,0,1,2,1,null],    fin:[0,1,2,4,3,0],  barre:false},
+  aug:      {off:[null,0,3,2,2,null],    fin:[0,1,4,2,3,0],  barre:false},
+  maj7:     {off:[null,0,2,1,2,0],       fin:[0,1,3,2,4,1],  barre:true},
+  "7":      {off:[null,0,2,0,2,0],       fin:[0,1,3,1,4,1],  barre:true},
+  m7:       {off:[null,0,2,0,1,0],       fin:[0,1,3,1,2,1],  barre:true},
+  m7b5:     {off:[null,0,1,0,1,null],    fin:[0,1,3,2,4,0],  barre:false},
+  dim7:     {off:[null,0,1,-1,1,null],   fin:[0,2,3,1,4,0],  barre:false},
+  mM7:      {off:[null,0,2,1,1,null],    fin:[0,1,4,2,3,0],  barre:false},
+  "7sus4":  {off:[null,0,2,0,3,0],       fin:[0,1,3,1,4,1],  barre:true},
+  maj7s5:   {off:[null,0,3,1,2,null],    fin:[0,1,4,2,3,0],  barre:false},
+  "6":      {off:[null,0,2,2,2,2],       fin:[0,1,3,3,3,3],  barre:false}, // 薬指セーハ
+  m6:       {off:[null,0,2,-1,1,null],   fin:[0,2,4,1,3,0],  barre:false},
+  "69":     {off:[null,0,-1,-1,0,0],     fin:[0,2,1,1,3,4],  barre:false},
+  m69:      {off:[null,0,-2,-1,0,null],  fin:[0,3,1,2,4,0],  barre:false},
+  add9:     {off:[null,0,2,4,2,0],       fin:[0,1,2,4,3,1],  barre:true},
+  madd9:    {off:[null,0,2,4,1,0],       fin:[0,1,3,4,2,1],  barre:true},
+  add4:     {off:[null,0,0,2,2,0],       fin:[0,1,1,3,4,1],  barre:true},
+  "9":      {off:[null,0,-1,0,0,0],      fin:[0,2,1,3,3,3],  barre:false}, // 薬指セーハ
+  maj9:     {off:[null,0,-1,1,0,0],      fin:[0,2,1,4,3,3],  barre:false},
+  m9:       {off:[null,0,-2,0,0,0],      fin:[0,2,1,3,3,3],  barre:false},
+  mM9:      {off:[null,0,-2,1,0,0],      fin:[0,2,1,4,3,3],  barre:false},
+  "9sus4":  {off:[null,0,0,0,0,0],       fin:[0,1,1,1,1,1],  barre:true},
+  "11":     {off:[null,0,0,0,0,0],       fin:[0,1,1,1,1,1],  barre:true},
+  m11:      {off:[null,0,0,0,1,0],       fin:[0,1,1,1,2,1],  barre:true},
+  "13":     {off:[null,0,-1,0,null,2],   fin:[0,2,1,3,0,4],  barre:false},
+  maj13:    {off:[null,0,-1,1,null,2],   fin:[0,2,1,3,0,4],  barre:false},
+  m13:      {off:[null,0,-2,0,null,2],   fin:[0,3,1,2,0,4],  barre:false},
+  "7b9":    {off:[null,0,-1,0,-1,0],     fin:[0,2,1,3,1,4],  barre:false},
+  "7s9":    {off:[null,0,-1,0,1,null],   fin:[0,2,1,3,4,0],  barre:false},
+  "7b5":    {off:[null,0,1,0,2,null],    fin:[0,2,3,1,4,0],  barre:false},
+  "7s5":    {off:[null,0,-1,0,null,1],   fin:[0,2,1,3,0,4],  barre:false},
+  "7s11":   {off:[null,0,-1,0,null,-1],  fin:[0,3,1,4,0,2],  barre:false},
+  maj7s11:  {off:[null,0,-1,1,null,-1],  fin:[0,3,1,4,0,2],  barre:false},
 };
 
 function mkBarreVoicing(name, shape, f, rootPc){
@@ -662,6 +952,9 @@ function voicingsFor(rootPc, typeId){
     // 基本位置とオクターブ上（指板内に収まるものだけ）
     for (const f of [base, base + 12]){
       const v = mkBarreVoicing(label, shape, f, rootPc);
+      const pressed = v.frets.filter(x => x >= 0);
+      // 相対offに負を含む形は低い位置でフレット0以下に落ちるため除外（オクターブ上を使う）
+      if (!pressed.length || Math.min(...pressed) < 1) continue;
       if (Math.max(...v.frets) <= FULL_END) out.push(v);
     }
   }
@@ -708,12 +1001,18 @@ function noteName(pc, flat){ return (flat?CHROMA_FLAT:CHROMA_SHARP)[pc]; }
 const state = {
   scale:"minor",
   keyIndex:9,    // A
-  chordType:"m", // コードモードのタイプ
+  chordType:"m", // コード／トーンモードのタイプ
   letter:"A",    // コードピッカーの文字タブ
+  cat:"triad",   // コードピッカーの種類タブ
   pos:0,
   disp:"degree",
   mode:"learn",
   view:"box",
+  form:0,        // トーンモードのルート弦（0=6弦 1=5弦 2=4弦）
+  bpm:88,        // アルペジオ練習のテンポ
+  toneLoop:false,
+  tonePenta:false,
+  toneQuiz:false,
   sound:true,
   quiz:null,
   streak:0,
@@ -764,19 +1063,21 @@ function positionRange(rootPc, scale, p){
   return { p, min:Math.min(...fs), max:Math.max(...fs), notes:ns };
 }
 
-let chordCtx = null; // コードモード時 {ivs:Set, rootPc}
+let chordCtx = null; // コード／トーンモード時 {labels:{pc→度数}, rootPc}
 
 function render(){
-  if (state.mode === "chord"){
+  const isChordish = state.mode === "chord" || state.mode === "tone";
+  if (isChordish){
     const t = CHORD_TYPES[state.chordType];
     state.scale = t.penta; // コードタイプから対応ペンタを自動決定
     setSeg("scaleSeg","scale",state.scale);
-    chordCtx = { ivs:new Set(t.ivs), rootPc:KEYS[state.keyIndex].pc };
+    chordCtx = { labels:toneLabels(t), rootPc:KEYS[state.keyIndex].pc };
   } else {
     chordCtx = null;
   }
   const rootPc = KEYS[state.keyIndex].pc;
-  if (state.view === "full") renderFull(rootPc);
+  if (state.mode === "tone") renderTone(rootPc);
+  else if (state.view === "full") renderFull(rootPc);
   else renderBox(rootPc);
   updateChrome();
 }
@@ -785,7 +1086,7 @@ function render(){
 function markChordTones(notes, startFret, endFret){
   if (!chordCtx) return;
   for (const n of notes){
-    n.ct = chordCtx.ivs.has(((n.pc - chordCtx.rootPc)%12+12)%12);
+    n.ct = ((n.pc - chordCtx.rootPc)%12+12)%12 in chordCtx.labels;
   }
   const pentaPcs = new Set(notes.map(n=>n.pc));
   const have = new Set(notes.map(n=>n.string+":"+n.fret));
@@ -794,12 +1095,12 @@ function markChordTones(notes, startFret, endFret){
       const pc = (OPEN_PC[s]+f)%12;
       if (pentaPcs.has(pc)) continue; // ペンタ内の音は既出
       const iv = ((pc - chordCtx.rootPc)%12+12)%12;
-      if (!chordCtx.ivs.has(iv)) continue;
+      if (!(iv in chordCtx.labels)) continue;
       const key = s+":"+f;
       if (have.has(key)) continue;
       notes.push({
         string:s, fret:f, pc,
-        degree:CHORD_IV_LABEL[iv] ?? "?",
+        degree:chordCtx.labels[iv],
         isRoot:false, midi:OPEN_MIDI[s]+f,
         selected:false, muted:false, extra:true, ct:true,
       });
@@ -871,6 +1172,68 @@ function renderFull(rootPc){
   drawBoard(0, FULL_END, notes, zones);
 }
 
+/* ── トーンモード：コードトーンだけを指板に描く ── */
+// 表示するフレット窓（ボックス＝ペンタのポジション窓／フォーム＝ルート弦起点／全フレット）
+function toneWindow(rootPc){
+  if (state.view === "full") return {start:0, end:FULL_END};
+  if (state.view === "form"){
+    const s = state.form;                        // 0=6弦 1=5弦 2=4弦
+    let f = ((rootPc - OPEN_PC[s])%12+12)%12;
+    if (f < 2) f += 12;                          // 開放付近は窓が取れないのでオクターブ上を使う
+    return {start:f-1, end:f+4, rootString:s, rootFret:f};
+  }
+  const r = positionRange(rootPc, state.scale, state.pos);
+  return {start:Math.max(0, r.min-1), end:r.max+1};
+}
+
+// コードトーンだけのノート集合（度数ラベルと役割つき）
+function buildToneNotes(rootPc, t, startFret, endFret){
+  const labels = toneLabels(t);
+  const out = [];
+  for (let s=0; s<6; s++){
+    for (let f=Math.max(0,startFret); f<=endFret; f++){
+      const pc = (OPEN_PC[s]+f)%12;
+      const lab = labels[((pc - rootPc)%12+12)%12];
+      if (lab === undefined) continue;
+      out.push({
+        string:s, fret:f, pc, degree:lab, role:toneRole(lab),
+        isRoot: lab === "R", midi:OPEN_MIDI[s]+f,
+        selected:true, muted:false, ct:true,
+      });
+    }
+  }
+  return out;
+}
+
+function renderTone(rootPc){
+  const t = CHORD_TYPES[state.chordType];
+  const isFull = state.view === "full";
+  GEO.fret = isFull ? 70 : 84; GEO.r = isFull ? 19 : 21; GEO.str = 60;
+  const w = toneWindow(rootPc);
+  const notes = buildToneNotes(rootPc, t, w.start, w.end);
+
+  // ペンタ重ね：コードトーン以外のスケール音を控えめに追加（コードトーンが骨組みだと分かる）
+  if (state.tonePenta){
+    const ivs = state.scale==="major" ? [0,2,4,7,9] : [0,3,5,7,10];
+    const degMap = state.scale==="major" ? DEG_MAJOR : DEG_MINOR;
+    const have = new Set(notes.map(n=>n.string+":"+n.fret));
+    for (let s=0; s<6; s++){
+      for (let f=Math.max(0,w.start); f<=w.end; f++){
+        if (have.has(s+":"+f)) continue;
+        const pc = (OPEN_PC[s]+f)%12;
+        const iv = ((pc - rootPc)%12+12)%12;
+        if (!ivs.includes(iv)) continue;
+        notes.push({string:s, fret:f, pc, degree:degMap[iv] ?? "?", isRoot:false,
+          midi:OPEN_MIDI[s]+f, selected:false, muted:true});
+      }
+    }
+  }
+
+  currentNotes = notes;
+  activeIndices = notes.map((n,i)=> n.selected ? i : -1).filter(i=>i>=0);
+  drawBoard(Math.max(0,w.start), w.end, notes, null);
+}
+
 function xForFret(f, startFret){ return GEO.mL + (f - startFret)*GEO.fret + GEO.fret/2; }
 function yForString(s){ return GEO.mT + (5 - s)*GEO.str; } // 6弦(s0)下・高e(s5)上
 
@@ -881,12 +1244,12 @@ function drawBoard(startFret, endFret, notes, ranges){
   const H = GEO.mT + 5*GEO.str + GEO.mB;
   board.setAttribute("viewBox", `0 0 ${W} ${H}`);
   board.setAttribute("height", H);
-  // 全フレットは実寸キープ（横スクロール）／ボックスはコンテナ幅にフィット
-  board.style.minWidth = ranges ? (W + "px") : "";
+  // 広い表示は実寸キープ（横スクロール）／ボックスはコンテナ幅にフィット
+  board.style.minWidth = (ranges || cols > 9) ? (W + "px") : "";
 
   const showName = state.disp==="name";
   const flat = KEYS[state.keyIndex].flat;
-  const inQuiz = state.mode==="quiz";
+  const inQuiz = state.mode==="quiz" || (state.mode==="tone" && state.toneQuiz);
   const q = state.quiz;
 
   let svg = "";
@@ -983,6 +1346,13 @@ function drawBoard(startFret, endFret, notes, ranges){
       if (n.isRoot){ fill="rgba(255,206,58,0.16)"; stroke="rgba(255,206,58,0.6)"; txt="#d8b455"; }
       else { fill="#1e2435"; stroke="#4a5573"; txt="#9aa4bd"; }
       rr = GEO.r - 2;
+    } else if (n.role){
+      // トーンモード：度数の役割ごとに色分け（R=金／3rd=ピンク／5th=青／7th=紫／テンション=ティール）
+      const c = ROLE_COLOR[n.role] || ROLE_COLOR.tension;
+      fill = c.fill; stroke = c.stroke; txt = c.txt;
+      if (n.role === "root"){
+        glow = `<circle class="root-halo" cx="${x}" cy="${y}" r="${GEO.r+7}" fill="none" stroke="var(--root)" stroke-width="2"/>`;
+      }
     } else if (n.isRoot){
       fill = "var(--root)"; stroke="none"; txt="#1c1503";
       glow = `<circle class="root-halo" cx="${x}" cy="${y}" r="${GEO.r+7}" fill="none" stroke="var(--root)" stroke-width="2"/>`;
@@ -994,10 +1364,11 @@ function drawBoard(startFret, endFret, notes, ranges){
       glow = `<circle class="root-halo" cx="${x}" cy="${y}" r="${GEO.r+7}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
     }
     // コードトーンは破線リングで強調（ルートは金ハローがあるので除外）
-    if (!isQ && n.ct && !n.extra && !n.muted && !n.isRoot){
+    if (!isQ && n.ct && !n.role && !n.extra && !n.muted && !n.isRoot){
       glow += `<circle cx="${x}" cy="${y}" r="${GEO.r+6}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3" opacity="0.9"/>`;
     }
-    const fontSize = (label.length>=2 ? GEO.r*0.78 : GEO.r*0.92);
+    // ♯11 や ♭13 のような3文字ラベルは円からはみ出すので更に小さく
+    const fontSize = label.length>=3 ? GEO.r*0.56 : (label.length>=2 ? GEO.r*0.78 : GEO.r*0.92);
     svg += `<g class="note" data-idx="${idx}">
       ${glow}
       <circle class="disc" cx="${x}" cy="${y}" r="${rr}" fill="${fill}" stroke="${stroke}" stroke-width="${n.muted?1.8:2.4}"${dash}/>
@@ -1031,12 +1402,40 @@ function drawBoard(startFret, endFret, notes, ranges){
   });
 }
 
+const LEGEND_BASE  = `<span><i class="swatch root"></i>ルート音</span><span><i class="swatch tone"></i>スケール音</span>`;
+const LEGEND_CHORD = LEGEND_BASE + `<span><i class="swatch ct"></i>コードトーン</span>`;
+const LEGEND_ROLE  = `<span><i class="swatch root"></i>R（ルート）</span><span><i class="swatch r3"></i>3rd</span>`
+  + `<span><i class="swatch r5"></i>5th</span><span><i class="swatch r7"></i>7th</span><span><i class="swatch rt"></i>テンション</span>`;
+
+// コードの構成音を「度数ラベル」「音名」の配列で返す
+function chordSpell(t, k){
+  return {
+    degs: t.ivs.map(iv => degLabel(t, iv)),
+    names: t.ivs.map(iv => noteName((k.pc+iv)%12, k.flat)),
+  };
+}
+
 function updateChrome(){
   const k = KEYS[state.keyIndex];
   const scLabel = state.scale==="major" ? "メジャー" : "マイナー";
   const isChord = state.mode==="chord";
+  const isTone  = state.mode==="tone";
   const nowEl = document.getElementById("now");
-  if (isChord){
+  const legend = document.getElementById("legend");
+
+  if (isTone){
+    const t = CHORD_TYPES[state.chordType];
+    const cname = k.label + t.suffix;
+    const sp = chordSpell(t, k);
+    document.getElementById("scaleTitle").innerHTML = `${cname} <em>のコードトーン</em>`;
+    document.getElementById("scaleNotes").textContent = `${sp.degs.join("  ")}　｜　${sp.names.join("  ")}`;
+    const scope = state.view==="full" ? "全フレット"
+                : state.view==="form" ? `${6-state.form}弦ルート`
+                : `POS ${state.pos+1}`;
+    nowEl.innerHTML = `TONE <b class="r">${cname}</b> · <b>${t.name}</b> · ${scope}`;
+    legend.innerHTML = LEGEND_ROLE;
+    renderTonePanels();
+  } else if (isChord){
     const t = CHORD_TYPES[state.chordType];
     const cname = k.label + t.suffix;
     const spell = t.ivs.map(iv=>noteName((k.pc+iv)%12, k.flat));
@@ -1044,20 +1443,32 @@ function updateChrome(){
     document.getElementById("scaleNotes").textContent =
       `コード ${spell.join(" ")} ｜ ペンタ ${scaleNotes(k.pc, state.scale, k.flat).join(" ")}`;
     nowEl.innerHTML = `CHORD <b class="r">${cname}</b> · <b>${k.label}${scLabel}ペンタ</b> · POS <b>${state.pos+1}</b>`;
+    legend.innerHTML = LEGEND_CHORD;
     renderChordPanel();
   } else {
     document.getElementById("scaleTitle").innerHTML = `${k.label} <em>${scLabel}</em> ペンタトニック`;
     document.getElementById("scaleNotes").textContent = scaleNotes(k.pc, state.scale, k.flat).join("  ");
     nowEl.innerHTML = `KEY <b class="r">${k.label}</b> · <b>${scLabel}</b> · POS <b>${state.pos+1}</b>`;
+    legend.innerHTML = LEGEND_BASE;
   }
-  document.getElementById("legendCt").style.display = isChord ? "inline-flex" : "none";
   updateStudy();
+}
+
+// 個別の解説を持たないコードタイプ向けに、ペンタ内／外から解説文を自動生成
+function autoTypeTip(t, cname){
+  const pentaIvs = pentaIvSet(t.penta);
+  const out = t.ivs.filter(iv => !pentaIvs.has(((iv%12)+12)%12));
+  const pentaName = t.penta==="major" ? "メジャーペンタ" : "マイナーペンタ";
+  return out.length
+    ? `<b>${t.name}</b>：<span class="hl">${out.map(iv=>degLabel(t,iv)).join("・")}</span> が${pentaName}の外にある音（破線表示）。ここを1音だけ足すと ${cname} の響きになる。`
+    : `<b>${t.name}</b>：${cname} の構成音は<b>すべて</b>${pentaName}の中。ペンタだけで弾いてもコードから外れない。`;
 }
 
 // 度数⇄音名 対応表＋暗記ポイントを現在のキー・スケールで更新
 const IV_NAMES_MAJOR = ["ルート","長2度","長3度","完全5度","長6度"];
 const IV_NAMES_MINOR = ["ルート","短3度","完全4度","完全5度","短7度"];
 function updateStudy(){
+  if (state.mode === "tone") return; // トーンモードでは暗記サポートを隠しているため更新不要
   const k = KEYS[state.keyIndex];
   const isMaj = state.scale==="major";
   const scLabel = isMaj ? "メジャー" : "マイナー";
@@ -1108,7 +1519,7 @@ function updateStudy(){
       `<b>対応ルール</b>：メジャー系（M・maj7・7・6・add9・9・sus）→ <span class="hl">メジャーペンタ</span>／マイナー系（m・m7・m6・dim・m7♭5）→ <span class="hl">マイナーペンタ</span>。`,
       `<b>${cname}</b> のルートは <span class="hg">${notes[0]}</span>。ペンタの<span class="hg">ルート音（金色）</span>と同じ位置なので、コードの基準フレットからボックスを思い出せる。`,
       `指板の<span class="hl">破線リング＝コードトーン</span>。フレーズの始まり・終わりに置くとコードに溶ける。`,
-      typeTips[state.chordType],
+      typeTips[state.chordType] ?? autoTypeTip(t, cname),
       `バレーコードと一緒に覚える：<b>Eフォーム（6弦ルート）</b>と<b>Aフォーム（5弦ルート）</b>の人差し指の位置が、そのままペンタのルート位置の目印になる。`,
     ];
     document.getElementById("tipList").innerHTML = tips.map(t2=>`<li>${t2}</li>`).join("");
@@ -1145,6 +1556,17 @@ const LETTER_TABS = [
 const ENHARMONIC = {1:"C♯", 3:"D♯", 6:"G♭", 8:"G♯", 10:"A♯"}; // KEYS表記の異名同音
 
 function renderChordPicker(){
+  // 種類タブ（初回のみ生成）
+  const cseg = document.getElementById("catSeg");
+  if (!cseg.dataset.built){
+    cseg.innerHTML = CHORD_CATS.map(c=>`<button data-cat="${c.id}" aria-pressed="false">${c.label}</button>`).join("");
+    cseg.querySelectorAll("button").forEach(b=>{
+      b.addEventListener("click", ()=>{ state.cat=b.dataset.cat; renderChordPicker(); });
+    });
+    cseg.dataset.built = "1";
+  }
+  setSeg("catSeg","cat",state.cat);
+
   // 文字タブ（初回のみ生成）
   const seg = document.getElementById("letterSeg");
   if (!seg.dataset.built){
@@ -1156,16 +1578,16 @@ function renderChordPicker(){
   }
   setSeg("letterSeg","letter",state.letter);
 
-  // チップ（選択タブのルートごとに1行）
+  // チップ（選択タブのルートごとに1行 × 選択中の種類）
   const group = LETTER_TABS.find(l=>l.tab===state.letter);
   let html = "";
   for (const pc of group.roots){
     const ki = KEYS.findIndex(k=>k.pc===pc);
     const enh = ENHARMONIC[pc] ? ` <small>/ ${ENHARMONIC[pc]}</small>` : "";
     html += `<div class="chip-row"><span class="chip-root">${KEYS[ki].label}${enh}</span><div class="chips">`;
-    for (const ty of CHORD_TYPE_ORDER){
+    for (const ty of typesOfCat(state.cat)){
       const sel = state.keyIndex===ki && state.chordType===ty;
-      html += `<button data-ki="${ki}" data-type="${ty}" aria-pressed="${sel}">${KEYS[ki].label}${CHORD_TYPES[ty].suffix}</button>`;
+      html += `<button data-ki="${ki}" data-type="${ty}" aria-pressed="${sel}" title="${CHORD_TYPES[ty].name}">${KEYS[ki].label}${CHORD_TYPES[ty].suffix}</button>`;
     }
     html += `</div></div>`;
   }
@@ -1206,21 +1628,22 @@ function renderChordPanel(){
   });
 
   // コードトーン × ペンタ対応表
-  const pentaIvs = new Set(t.penta==="major" ? [0,2,4,7,9] : [0,3,5,7,10]);
+  const pentaIvs = pentaIvSet(t.penta);
   let rows = "";
   t.ivs.forEach(iv=>{
-    const inP = pentaIvs.has(iv);
+    const inP = pentaIvs.has(((iv%12)+12)%12);
+    const lab = degLabel(t, iv);
     rows += `<div class="deg-row${iv===0?' is-root':''}">
-      <span class="d-deg">${CHORD_IV_LABEL[iv]}</span>
+      <span class="d-deg${lab.length>=3?' sm':''}">${lab}</span>
       <span class="d-note">${noteName((k.pc+iv)%12, k.flat)}</span>
       <span class="pin ${inP?'in':'out'}">${inP?'ペンタ内':'ペンタ外'}</span>
     </div>`;
   });
   document.getElementById("chordMap").innerHTML = rows;
   document.getElementById("mapSub").textContent = `${cname} → ${k.label} ${scLabel}ペンタ`;
-  const outIvs = t.ivs.filter(iv=>!pentaIvs.has(iv));
+  const outIvs = t.ivs.filter(iv=>!pentaIvs.has(((iv%12)+12)%12));
   document.getElementById("chordNote").innerHTML = outIvs.length
-    ? `※ <span class="hl">${outIvs.map(iv=>CHORD_IV_LABEL[iv]).join("・")}</span> はペンタに含まれないコードトーン。指板では<span class="hl">破線の丸</span>で表示しています。`
+    ? `※ <span class="hl">${outIvs.map(iv=>degLabel(t,iv)).join("・")}</span> はペンタに含まれないコードトーン。指板では<span class="hl">破線の丸</span>で表示しています。`
     : `※ ${cname} の構成音は<b>すべて</b> ${k.label} ${scLabel}ペンタに含まれます。コードを押さえたままペンタを弾けば外れません。`;
 }
 
@@ -1281,6 +1704,222 @@ function strumVoicing(v){
     setTimeout(()=>playMidi(midi, 1.1), d);
     d += 55;
   }
+}
+
+/* ============================================================
+   トーンモード：アルペジオ練習と「規則性」の解説
+   ============================================================ */
+
+// コードタイプを切り替える（チェーン図・早見表からの遷移でも使う）
+function setChordType(id){
+  if (!CHORD_TYPES[id]) return;
+  state.chordType = id;
+  state.cat = CHORD_TYPES[id].cat;
+  renderChordPicker();
+  afterChange();
+}
+
+/* ── ① 3度堆積 ── */
+// R→3→5→7→9→11→13 の各段に、そのコードが持つ度数を当てはめる（無ければ空欄＝省略）
+const STACK_SLOTS = [
+  {name:"1度（ルート）", cand:["R"]},
+  {name:"3度",  cand:["3","♭3","4","2"]},
+  {name:"5度",  cand:["5","♭5","♯5"]},
+  {name:"7度",  cand:["7","♭7","°7"]},
+  {name:"9度",  cand:["9","♭9","♯9"]},
+  {name:"11度", cand:["11","♯11","4"]},
+  {name:"13度", cand:["13","6"]},
+];
+function renderStack(t){
+  const remain = new Set(t.ivs.map(iv=>degLabel(t,iv)));
+  let html = "";
+  STACK_SLOTS.forEach((slot,i)=>{
+    const hit = slot.cand.find(l => remain.has(l));
+    if (hit) remain.delete(hit);
+    if (i>0) html += `<span class="stack-arr"><b>+3度</b>1つ飛ばし</span>`;
+    html += `<span class="stack-deg${hit==="R"?" root":""}${hit?"":" off"}" title="${slot.name}">${hit ?? "–"}</span>`;
+  });
+  document.getElementById("stackFig").innerHTML = html;
+}
+
+/* ── ② 半音ひとつでコードが変わるチェーン ── */
+const CHAINS = [
+  {label:"トライアド（3和音）", steps:["aug","M","m","dim"],
+   ops:["♯5を半音↓","3rdを半音↓","5thを半音↓"]},
+  {label:"セブンス（4和音）",   steps:["maj7","7","m7","m7b5","dim7"],
+   ops:["7thを半音↓","3rdを半音↓","5thを半音↓","♭7を半音↓"]},
+  {label:"ナインス（5和音）",   steps:["maj9","9","m9"],
+   ops:["7thを半音↓","3rdを半音↓"]},
+  {label:"6th",                 steps:["6","m6"], ops:["3rdを半音↓"]},
+  {label:"サス（3rdの置き換え）", steps:["sus2","M","sus4"], ops:["2ndを全音↑","3rdを半音↑"]},
+  {label:"5thの変化",           steps:["7b5","7","7s5"], ops:["♭5を半音↑","5thを半音↑"]},
+  {label:"9thの変化",           steps:["7b9","9","7s9"], ops:["♭9を半音↑","9thを半音↑"]},
+];
+function renderChains(){
+  let html = "";
+  for (const c of CHAINS){
+    html += `<div class="chain-block"><div class="chain-title">${c.label}</div><div class="chain">`;
+    c.steps.forEach((id,i)=>{
+      if (i>0) html += `<span class="chain-arrow"><i>→</i>${c.ops[i-1]}</span>`;
+      const t = CHORD_TYPES[id];
+      html += `<button class="chain-node" data-type="${id}" aria-pressed="${state.chordType===id}" title="${t.name}">${t.suffix || "M"}</button>`;
+    });
+    html += `</div></div>`;
+  }
+  const el = document.getElementById("chainFig");
+  el.innerHTML = html;
+  el.querySelectorAll(".chain-node").forEach(b=>{
+    b.addEventListener("click", ()=>setChordType(b.dataset.type));
+  });
+}
+
+/* ── ③ 指板の位置の規則 ── */
+function renderFretRules(t, cname, sp){
+  const rules = [
+    `<b>オクターブ</b>：6弦のルートから<span class="hl">2本細い弦・2フレット上</span>（＝4弦）が同じ音。5弦→3弦も同じ関係。まずルートを増やす。`,
+    `<b>3rd</b>はルートの<span class="hl">4フレット上（同じ弦）</span>、<b>♭3</b>は<span class="hl">3フレット上</span>。1フレットの差でメジャー⇄マイナーが入れ替わる。`,
+    `<b>5th</b>はルートの<span class="hl">1本細い弦・2フレット上</span>。パワーコードの形そのもの。♭5はその1フレット下、♯5は1フレット上。`,
+    `<b>♭7</b>はルートの<span class="hl">2フレット下（同じ弦）</span>、<b>7th</b>は<span class="hl">1フレット下</span>。オクターブ上のルートから逆算すると速い。`,
+    `<b>9th</b>はルートの<span class="hl">2フレット上</span>、<b>11th</b>は<span class="hl">5フレット上</span>、<b>13th</b>は<span class="hl">1本細い弦・4フレット上</span>。`,
+    `2弦だけ調弦が半音ぶん狭いので、<span class="hl">2弦をまたぐ形は+1フレット補正</span>が要る。同じ形なのに崩れて見えるのはこれが理由。`,
+    `いま鳴らしている <b>${cname}</b> は <span class="hg">${sp.degs.join(" ・ ")}</span>（${sp.names.join(" ")}）。指板の色は R＝金／3rd＝ピンク／5th＝青／7th＝紫／テンション＝ティール。`,
+  ];
+  document.getElementById("fretRules").innerHTML = rules.map(r=>`<li>${r}</li>`).join("");
+}
+
+/* ── ④ コード構成音 早見表 ── */
+const MTX_COLS = [
+  {pc:0,h:"R"},{pc:1,h:"♭9"},{pc:2,h:"9"},{pc:3,h:"♭3/♯9"},{pc:4,h:"3"},{pc:5,h:"4/11"},
+  {pc:6,h:"♭5/♯11"},{pc:7,h:"5"},{pc:8,h:"♯5/♭13"},{pc:9,h:"6/13"},{pc:10,h:"♭7"},{pc:11,h:"7"},
+];
+function renderMatrix(){
+  let html = `<table class="mtx"><thead><tr><th>コード</th>${MTX_COLS.map(c=>`<th>${c.h}</th>`).join("")}</tr></thead><tbody>`;
+  for (const cat of CHORD_CATS){
+    html += `<tr class="cat-row"><th colspan="${MTX_COLS.length+1}">${cat.label}</th></tr>`;
+    for (const id of typesOfCat(cat.id)){
+      const t = CHORD_TYPES[id];
+      const labels = toneLabels(t);
+      html += `<tr class="${id===state.chordType?"on":""}" data-type="${id}" title="${t.name}"><th>${t.suffix || "（メジャー）"}</th>`;
+      html += MTX_COLS.map(c=>{
+        const l = labels[c.pc];
+        return l ? `<td class="y${l==="R"?" r":""}">${l}</td>` : `<td class="n">·</td>`;
+      }).join("");
+      html += `</tr>`;
+    }
+  }
+  html += `</tbody></table>`;
+  const wrap = document.getElementById("mtxWrap");
+  wrap.innerHTML = html;
+  wrap.querySelectorAll("tbody tr[data-type]").forEach(tr=>{
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", ()=>setChordType(tr.dataset.type));
+  });
+}
+
+/* ── アルペジオ練習（弦の低い方から＝運指の順番で鳴らす） ── */
+let toneTimer = null;
+let toneDir = null;
+const TONE_BTNS = {up:{id:"toneUp",label:"上昇"}, down:{id:"toneDown",label:"下降"}, both:{id:"toneBoth",label:"上昇→下降"}};
+
+function syncToneButtons(){
+  for (const [dir,b] of Object.entries(TONE_BTNS)){
+    const el = document.getElementById(b.id);
+    if (!el) continue;
+    const on = toneDir === dir;
+    el.innerHTML = on ? `<span class="ic">■</span> 停止` : `<span class="ic">▶</span> ${b.label}`;
+    el.setAttribute("aria-pressed", String(on));
+  }
+}
+function stopTonePlay(){
+  if (toneTimer){ clearTimeout(toneTimer); toneTimer = null; }
+  noteEls.forEach(el=>el.classList.remove("play"));
+  toneDir = null;
+  syncToneButtons();
+}
+function playToneArp(dir){
+  const same = toneDir === dir;
+  stopTonePlay();
+  if (same) return;                       // 同じボタンをもう一度押したら停止
+  ensureAudio();
+  const base = activeIndices
+    .map(i=>({i, n:currentNotes[i]}))
+    .sort((a,b)=> a.n.string - b.n.string || a.n.fret - b.n.fret); // 6弦→1弦、低フレット→高フレット
+  if (!base.length) return;
+  let seq = base;
+  if (dir === "down") seq = base.slice().reverse();
+  if (dir === "both") seq = base.concat(base.slice(0,-1).reverse());
+  toneDir = dir;
+  syncToneButtons();
+  let k = 0;
+  const tick = ()=>{
+    if (k > 0) noteEls[seq[k-1].i]?.classList.remove("play");
+    if (k >= seq.length){
+      if (!state.toneLoop){ stopTonePlay(); return; }
+      k = 0;
+    }
+    const step = 60000 / state.bpm;       // テンポ変更が次の音から効くよう毎回計算
+    noteEls[seq[k].i]?.classList.add("play");
+    playMidi(seq[k].n.midi, Math.min(1.1, step/1000*0.95));
+    k++;
+    toneTimer = setTimeout(tick, step);
+  };
+  tick();
+}
+
+/* ── トーンモードのクイズ（コードトーンの度数当て） ── */
+function syncToneQuizBtn(){
+  const b = document.getElementById("toneQuizBtn");
+  if (!b) return;
+  b.setAttribute("aria-pressed", String(state.toneQuiz));
+  b.innerHTML = `<span class="ic">?</span> クイズ ${state.toneQuiz?"ON":"OFF"}`;
+}
+function toggleToneQuiz(){
+  state.toneQuiz = !state.toneQuiz;
+  syncToneQuizBtn();
+  stopTonePlay();
+  document.getElementById("quiz").classList.toggle("on", state.toneQuiz);
+  if (state.toneQuiz){
+    state.streak = 0;
+    document.getElementById("streak").textContent = 0;
+    newQuiz();
+  } else {
+    state.quiz = null;
+    render();
+  }
+}
+
+function renderTonePanels(){
+  const k = KEYS[state.keyIndex];
+  const t = CHORD_TYPES[state.chordType];
+  const cname = k.label + t.suffix;
+  const sp = chordSpell(t, k);
+  const count = activeIndices.length;
+  const scope = state.view==="full" ? "指板全体"
+              : state.view==="form" ? `${6-state.form}弦ルートのフォーム`
+              : `ポジション ${state.pos+1} の範囲`;
+
+  document.getElementById("toneSub").textContent = `${cname} ＝ ${sp.names.join("・")}`;
+  document.getElementById("toneNote").innerHTML =
+    `いま <b>${scope}</b> に <span class="hg">${count}個</span> のコードトーンが出ています。`
+    + `再生は<b>6弦側から順番</b>＝そのまま運指の練習になります。`
+    + `<br>「範囲」を<span class="hl">フォーム</span>にすると、6弦／5弦／4弦のルートを起点にした<b>アルペジオの型</b>だけが残ります。`
+    + `まずこの型を1つ覚え、ルートを動かして12キーに使い回すのが最短です。`
+    + `<br><span class="hl">ペンタ重ね</span>をONにすると、コードトーンがペンタトニックの<b>どの音と重なっているか</b>が見えます。`
+    + `コードトーン＝ペンタの中の“着地して良い音”です。`;
+
+  renderStack(t);
+  document.getElementById("stackNote").innerHTML =
+    `${cname} は <span class="hg">${sp.degs.join(" → ")}</span>。`
+    + `7thまでが<b>コードの土台</b>、9th以降は<b>テンション（色づけ）</b>です。`
+    + `空欄の段は<b>その音を省略している</b>ことを意味します（例：11thコードは3rdを省く）。`;
+
+  renderChains();
+  document.getElementById("chainNote").innerHTML =
+    `どの列も<b>となり同士は音が1つしか違いません</b>。押さえ方を一から覚え直す必要はなく、`
+    + `<span class="hl">指を1本だけ半音動かす</span>と別のコードになります。これがコードトーンを覚える最大の近道です。`;
+
+  renderFretRules(t, cname, sp);
+  renderMatrix();
 }
 
 /* ============================================================
@@ -1466,10 +2105,16 @@ function newQuiz(){
     var answer = correct;
   } else {
     const correct = target.degree;
-    const allDeg = Object.values(state.scale==="major"?DEG_MAJOR:DEG_MINOR);
+    const inTone = state.mode==="tone";
+    // トーンモードでは選択肢もコードトーンの度数（9th・11th・13thを含む）から作る
+    const allDeg = inTone
+      ? [...new Set(notes.filter(n=>n.selected).map(n=>n.degree))]
+      : Object.values(state.scale==="major"?DEG_MAJOR:DEG_MINOR);
     const pool = allDeg.filter(x=>x!==correct);
     options = shuffle([correct, ...pickN(pool, Math.min(3,pool.length))]);
-    var qText = `ハイライトされた音の<b>度数</b>は？`;
+    var qText = inTone
+      ? `ハイライトされた音は <b>${KEYS[state.keyIndex].label}${CHORD_TYPES[state.chordType].suffix}</b> の何度？`
+      : `ハイライトされた音の<b>度数</b>は？`;
     var answer = correct;
   }
   state.quiz = { idx, answer, options, answered:false };
@@ -1550,9 +2195,13 @@ function initControls(){
   document.querySelectorAll("#posSeg button").forEach(b=>{
     b.addEventListener("click", ()=>{ state.pos=+b.dataset.pos; setSeg("posSeg","pos",b.dataset.pos); afterChange(); });
   });
-  // 表示範囲（ボックス / 全フレット）
+  // 表示範囲（ボックス / フォーム / 全フレット）
   document.querySelectorAll("#viewSeg button").forEach(b=>{
-    b.addEventListener("click", ()=>{ state.view=b.dataset.view; setSeg("viewSeg","view",state.view); afterChange(); });
+    b.addEventListener("click", ()=>{ state.view=b.dataset.view; setSeg("viewSeg","view",state.view); syncModeUI(); afterChange(); });
+  });
+  // トーンモード：ルート弦（アルペジオのフォーム）
+  document.querySelectorAll("#formSeg button").forEach(b=>{
+    b.addEventListener("click", ()=>{ state.form=+b.dataset.form; setSeg("formSeg","form",b.dataset.form); afterChange(); });
   });
   // 表示
   document.querySelectorAll("#dispSeg button").forEach(b=>{
@@ -1582,11 +2231,37 @@ function initControls(){
   document.getElementById("nextBtn").addEventListener("click", newQuiz);
   // ソング 通して再生
   document.getElementById("songPlay").addEventListener("click", playSongAll);
+
+  // トーンモード：アルペジオ練習
+  document.getElementById("toneUp").addEventListener("click", ()=>playToneArp("up"));
+  document.getElementById("toneDown").addEventListener("click", ()=>playToneArp("down"));
+  document.getElementById("toneBoth").addEventListener("click", ()=>playToneArp("both"));
+  document.getElementById("toneLoopBtn").addEventListener("click", e=>{
+    state.toneLoop = !state.toneLoop;
+    e.currentTarget.setAttribute("aria-pressed", String(state.toneLoop));
+    e.currentTarget.innerHTML = `<span class="ic">↻</span> ループ ${state.toneLoop?"ON":"OFF"}`;
+  });
+  document.getElementById("toneQuizBtn").addEventListener("click", toggleToneQuiz);
+  document.getElementById("tonePentaBtn").addEventListener("click", e=>{
+    state.tonePenta = !state.tonePenta;
+    e.currentTarget.setAttribute("aria-pressed", String(state.tonePenta));
+    e.currentTarget.innerHTML = `<span class="ic">◌</span> ペンタ重ね ${state.tonePenta?"ON":"OFF"}`;
+    afterChange();
+  });
+  const tr = document.getElementById("tempoRange");
+  const syncTempo = ()=>{
+    state.bpm = +tr.value;
+    document.getElementById("tempoVal").textContent = state.bpm;
+    tr.style.setProperty("--fill", (((state.bpm-40)/160)*100).toFixed(1)+"%");
+  };
+  tr.addEventListener("input", syncTempo);
+  syncTempo();
 }
 
 function afterChange(){
   if (animTimer){ clearTimeout(animTimer); animTimer=null; document.getElementById("playBtn").disabled=false; }
-  if (state.mode==="quiz"){ newQuiz(); } else { render(); }
+  stopTonePlay();
+  if (state.mode==="quiz" || (state.mode==="tone" && state.toneQuiz)){ newQuiz(); } else { render(); }
 }
 
 // モードに応じたUIの表示切替（コード表・ソング・ピッカー・ペンタ系UI）
@@ -1594,30 +2269,49 @@ function fieldOf(el){ return el ? el.closest(".field") : null; }
 function syncModeUI(){
   const isChord = state.mode==="chord";
   const isSong  = state.mode==="song";
+  const isTone  = state.mode==="tone";
   if (!isSong) stopSong();
+  if (!isTone){
+    stopTonePlay();
+    if (state.toneQuiz){ state.toneQuiz = false; state.quiz = null; syncToneQuizBtn(); }
+  }
 
   // コードモード
   document.getElementById("chordSec").classList.toggle("on", isChord);
-  document.getElementById("chordPicker").hidden = !isChord;
-  document.getElementById("scaleSeg").classList.toggle("disabled", isChord); // ペンタはコードから自動決定
+  // トーンモード
+  document.getElementById("toneSec").classList.toggle("on", isTone);
+  // コードピッカーはコード／トーンで共用
+  document.getElementById("chordPicker").hidden = !(isChord || isTone);
+  document.getElementById("scaleSeg").classList.toggle("disabled", isChord || isTone); // ペンタはコードから自動決定
 
   // ソングモード
   document.getElementById("songSec").classList.toggle("on", isSong);
 
+  // 「フォーム」表示はトーンモード専用
+  const formBtn = document.querySelector('#viewSeg button[data-view="form"]');
+  if (formBtn) formBtn.hidden = !isTone;
+  if (!isTone && state.view === "form"){ state.view = "box"; setSeg("viewSeg","view","box"); }
+  document.getElementById("formField").hidden = !(isTone && state.view === "form");
+  // ポジション選択はボックス表示のときだけ意味がある
+  document.getElementById("posField").hidden = isTone && state.view !== "box";
+
   // ペンタ系UI（指板・暗記サポート・各コントロール）はソングモードでは隠す
   document.querySelector(".stage").style.display = isSong ? "none" : "";
-  document.querySelector(".study").style.display = isSong ? "none" : "";
-  document.getElementById("playBtn").style.display = isSong ? "none" : "";
-  document.getElementById("keyField").hidden = isChord || isSong; // キー選択はピッカー/曲固定に置換
+  document.querySelector(".study").style.display = (isSong || isTone) ? "none" : "";
+  document.getElementById("playBtn").style.display = (isSong || isTone) ? "none" : "";
+  document.getElementById("keyField").hidden = isChord || isSong || isTone; // キー選択はピッカー/曲固定に置換
   ["scaleSeg","posSeg","dispSeg","viewSeg"].forEach(id=>{
     const f = fieldOf(document.getElementById(id));
-    if (f) f.style.display = isSong ? "none" : "";
+    if (f && id !== "posSeg") f.style.display = isSong ? "none" : "";
   });
+  const posF = document.getElementById("posField");
+  if (isSong) posF.style.display = "none"; else posF.style.display = "";
 
-  if (isChord){
-    // 現在のキーに合わせて文字タブを開く
+  if (isChord || isTone){
+    // 現在のキー・コードに合わせてピッカーのタブを開く
     const pc = KEYS[state.keyIndex].pc;
     state.letter = LETTER_TABS.find(l=>l.roots.includes(pc)).tab;
+    state.cat = CHORD_TYPES[state.chordType].cat;
     renderChordPicker();
   }
   if (isSong) renderSong();
