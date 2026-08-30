@@ -374,6 +374,59 @@
   .cat-seg button[aria-pressed="true"]{color:#22070f;background:var(--accent);box-shadow:0 0 20px -5px rgba(255,92,138,.55)}
   .cat-seg button:focus-visible{outline-color:var(--accent)}
 
+  /* ── トライアドモード ── */
+  /* 動画の推奨どおり「ルートが一番濃い → 3と5は薄く色つき → 残りのペンタは数字だけ」の3段階 */
+  :root{
+    --tri-root:#ffd426;      /* 1（ルート）＝一番濃い */
+    --tri-tone:#b07a55;      /* 3・5＝薄く色つき */
+    --tri-tone-lite:#c99873;
+    --tri-rest:#2b3145;      /* その他のペンタ＝数字だけ */
+  }
+  .swatch.t1{background:var(--tri-root);box-shadow:0 0 10px var(--tri-root)}
+  .swatch.t3{background:var(--tri-tone)}
+  .swatch.tp{background:var(--tri-rest);border:1px solid #4a5573}
+
+  .triad-sec{display:none;margin-top:22px}
+  .triad-sec.on{display:grid;grid-template-columns:1fr 1fr;gap:18px;animation:fadeUp .4s var(--ease)}
+  .triad-sec .wide{grid-column:1/-1}
+  .triad-sec .panel{min-width:0}
+  @media (max-width:860px){ .triad-sec.on{grid-template-columns:1fr} }
+
+  /* 色の意味の凡例 */
+  .tri-legend{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 16px}
+  .tri-key{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border:1px solid var(--line);
+    border-radius:13px;background:rgba(255,255,255,.02);flex:1 1 250px}
+  .tri-key>div{flex:1;min-width:0}
+  .tri-dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+    font-family:"JetBrains Mono",monospace;font-weight:800;font-size:15px}
+  .tri-dot.r{background:var(--tri-root);color:#1a1400;box-shadow:0 0 16px -3px var(--tri-root)}
+  .tri-dot.t{background:var(--tri-tone);color:#fff8f2}
+  .tri-dot.p{background:var(--tri-rest);color:#9aa4bd;border:2px solid #4a5573}
+  .tri-key>div>b{display:block;font-size:13.5px;color:var(--ink);font-weight:700;margin-bottom:4px;line-height:1.4}
+  .tri-key>div>span{display:block;font-size:12px;color:var(--muted);line-height:1.65}
+  .tri-key>div>span b{display:inline;color:var(--ink);font-weight:700} /* 文中の強調は改行させない */
+
+  /* コード進行チャート（タップでそのコードに切り替え） */
+  .prog-chart{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+  .prog-chip{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:16px;color:var(--muted);
+    background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 17px;cursor:pointer;
+    transition:.16s var(--ease);white-space:nowrap;text-align:center;line-height:1.25}
+  .prog-chip small{display:block;font-size:10px;color:var(--muted-2);font-weight:600;letter-spacing:.06em}
+  .prog-chip:hover{color:var(--ink);border-color:var(--tri-tone-lite);background:rgba(176,122,85,.12)}
+  .prog-chip[aria-pressed="true"]{color:#1a1400;background:var(--tri-root);border-color:var(--tri-root);
+    box-shadow:0 0 22px -5px var(--tri-root)}
+  .prog-chip[aria-pressed="true"] small{color:#5a4a00}
+  .prog-bar{color:var(--muted-2);font-weight:800;font-size:17px}
+
+  /* ポジション（CAGEDフォーム）バッジ */
+  .form-badge{display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;
+    font-weight:800;font-size:13px;color:var(--tri-root);background:rgba(255,212,38,.14);
+    border:1px solid rgba(255,212,38,.45);border-radius:999px;padding:6px 14px}
+
+  /* つまずきポイント（警告調） */
+  .tips.warn li::before{background:var(--bad);box-shadow:0 0 9px var(--bad)}
+  .tips.warn li:nth-child(odd)::before{background:var(--bad);box-shadow:0 0 9px var(--bad)}
+
   /* ── ソングモード（曲のコード進行チャート） ── */
   .song-sec{display:none;margin-top:22px}
   .song-sec.on{display:block;animation:fadeUp .4s var(--ease)}
@@ -492,6 +545,7 @@
         <label>モード</label>
         <div class="seg pink" id="modeSeg">
           <button data-mode="learn" aria-pressed="true">学習</button>
+          <button data-mode="triad" aria-pressed="false">トライアド</button>
           <button data-mode="quiz" aria-pressed="false">クイズ</button>
           <button data-mode="chord" aria-pressed="false">コード</button>
           <button data-mode="tone" aria-pressed="false">トーン</button>
@@ -500,6 +554,7 @@
       </div>
       <div class="spacer"></div>
       <button class="btn-ghost" id="playBtn" aria-label="運指アニメを再生"><span class="ic" aria-hidden="true">▶</span> 運指アニメ</button>
+      <button class="btn-ghost" id="triadOnlyBtn" aria-pressed="false" hidden><span class="ic">◎</span> トライアドだけ OFF</button>
       <button class="btn-ghost" id="toneQuizBtn" aria-pressed="false" hidden><span class="ic">?</span> クイズ OFF</button>
       <button class="btn-ghost" id="tonePentaBtn" aria-pressed="false" hidden><span class="ic">◌</span> ペンタ重ね OFF</button>
       <button class="btn-ghost" id="soundBtn" aria-pressed="true" aria-label="音のオン・オフ"><span class="ic" id="soundIc" aria-hidden="true">🔊</span> 音 ON</button>
@@ -559,6 +614,51 @@
       <div class="deg-head"><span>構成音</span><span>音名</span><span>ペンタ</span></div>
       <div class="deg-table" id="chordMap"></div>
       <p class="study-note" id="chordNote"></p>
+    </div>
+  </section>
+
+  <!-- トライアド（ペンタの中の3音） -->
+  <section class="triad-sec" id="triadSec">
+    <div class="panel wide">
+      <div class="panel-h">
+        <span class="bar"></span>
+        <h3>いま指板に見えているもの</h3>
+        <span class="sub" id="triadSub"></span>
+      </div>
+      <p class="lead" id="triadLead"></p>
+      <div class="tri-legend" id="triLegend"></div>
+      <p class="prac-note" id="triadNote"></p>
+    </div>
+
+    <div class="panel wide">
+      <div class="panel-h">
+        <span class="bar pink"></span>
+        <h3>コードが変わったら、トライアドも切り替える</h3>
+        <span class="sub" id="progSub"></span>
+      </div>
+      <p class="lead" id="progLead"></p>
+      <div class="field" style="margin-bottom:4px">
+        <label>進行</label>
+        <select id="progSel" aria-label="コード進行"></select>
+      </div>
+      <div class="prog-chart" id="progChart"></div>
+      <p class="prac-note" id="progNote"></p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <span class="bar"></span>
+        <h3>覚えるべきポイント</h3>
+      </div>
+      <ul class="tips" id="triadPoints"></ul>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">
+        <span class="bar pink"></span>
+        <h3>ここでつまずきます（先に知っておく）</h3>
+      </div>
+      <ul class="tips warn" id="triadTraps"></ul>
     </div>
   </section>
 
@@ -1005,6 +1105,9 @@ const state = {
   form:0,        // トーンモードのルート弦（0=6弦 1=5弦 2=4弦）
   tonePenta:false,
   toneQuiz:false,
+  triadOnly:false,   // トライアドの3音だけを指板に出す
+  progIdx:0,         // トライアド練習のコード進行
+  progRoot:9,        // 進行の基準キー（pc）
   sound:true,
   quiz:null,
   streak:0,
@@ -1103,14 +1206,16 @@ function markChordTones(notes, startFret, endFret){
 // ボックス表示（選択ポジションをズーム）
 function renderBox(rootPc){
   GEO.fret = 84; GEO.r = 21; GEO.str = 60;
-  const notes = buildNotes(rootPc, state.scale, state.pos)
+  const all = buildNotes(rootPc, state.scale, state.pos)
     .map(n => ({...n, selected:true, muted:false}));
-  currentNotes = notes;
-  activeIndices = notes.map((_,i)=>i);
-  const frets = notes.map(n=>n.fret);
+  // フレット範囲は「トライアドだけ」表示でも動かないよう、間引く前の音で決める
+  const frets = all.map(n=>n.fret);
   let startFret = Math.max(0, Math.min(...frets) - 1);
   let endFret = Math.max(...frets) + 1;
   if (endFret - startFret < 4) endFret = startFret + 4;
+  const notes = markTriad(all);
+  currentNotes = notes;
+  activeIndices = notes.map((_,i)=>i);
   markChordTones(notes, startFret, endFret);
   drawBoard(startFret, endFret, notes, null);
 }
@@ -1153,15 +1258,42 @@ function renderFull(rootPc){
       }
     }
   }
-  const notes = [...map.values()].map(n => ({
+  const notes = markTriad([...map.values()].map(n => ({
     ...n,
     selected: n.positions.has(state.pos),
     muted: !n.positions.has(state.pos),
-  }));
+  })));
   currentNotes = notes;
   activeIndices = notes.map((n,i)=> n.selected ? i : -1).filter(i=>i>=0);
   markChordTones(notes, 0, FULL_END);
   drawBoard(0, FULL_END, notes, zones);
+}
+
+/* ── トライアドモード：ペンタの中の3音（1・3・5）を浮かび上がらせる ── */
+// 参考動画の推奨どおり「ルートが一番濃い → 3と5は薄く色つき → 残りのペンタは数字だけ」の3段階
+const TRIAD_COLOR = {
+  root:  {fill:"var(--tri-root)", stroke:"none",            txt:"#1a1400",
+          dimFill:"rgba(255,212,38,.15)", dimStroke:"rgba(255,212,38,.55)", dimTxt:"#c9a836"},
+  triad: {fill:"var(--tri-tone)", stroke:"var(--tri-tone-lite)", txt:"#fff8f2",
+          dimFill:"rgba(176,122,85,.14)", dimStroke:"rgba(176,122,85,.6)",  dimTxt:"#a5795a"},
+  penta: {fill:"var(--tri-rest)", stroke:"#4a5573",         txt:"#9aa4bd",
+          dimFill:"#161b28", dimStroke:"#39415a", dimTxt:"#6b7693"},
+};
+// ペンタの5音を「ルート／トライアド（3・5）／それ以外」に振り分ける
+function triadRole(degree){
+  if (degree === "1") return "root";
+  if (degree === "3" || degree === "♭3" || degree === "5") return "triad";
+  return "penta";
+}
+// 各ポジションに対応するコードフォーム（CAGED）
+const POS_FORM = ["Eフォーム","Dフォーム","Cフォーム","Aフォーム","Gフォーム"];
+const POS_FORM_HINT = ["6弦ルート","4弦ルート","2弦ルート","5弦ルート","3弦ルート"];
+
+function markTriad(notes){
+  if (state.mode !== "triad") return notes;
+  for (const n of notes) n.triadRole = triadRole(n.degree);
+  // 「トライアドだけ」ONのときは、残り2音を指板から消す（動画の「2音削る」）
+  return state.triadOnly ? notes.filter(n => n.triadRole !== "penta") : notes;
 }
 
 /* ── トーンモード：コードトーンだけを指板に描く ── */
@@ -1334,6 +1466,17 @@ function drawBoard(startFret, endFret, notes, ranges){
       // ペンタ外のコードトーン（破線）
       fill="rgba(255,92,138,0.07)"; stroke="rgba(255,92,138,0.8)"; txt="#ff9ebc";
       rr=GEO.r-3; dash=' stroke-dasharray="5 4"';
+    } else if (n.triadRole){
+      // トライアドモード：ルート＞3・5＞その他 の3段階で塗り分ける
+      const c = TRIAD_COLOR[n.triadRole];
+      const dim = n.muted;
+      fill = dim ? c.dimFill : c.fill;
+      stroke = dim ? c.dimStroke : c.stroke;
+      txt = dim ? c.dimTxt : c.txt;
+      rr = dim ? GEO.r - 3 : (n.triadRole === "penta" ? GEO.r - 2 : GEO.r);
+      if (n.triadRole === "root" && !dim){
+        glow = `<circle class="root-halo" cx="${x}" cy="${y}" r="${GEO.r+7}" fill="none" stroke="var(--tri-root)" stroke-width="2"/>`;
+      }
     } else if (n.muted){
       // ブロック外のスケール音（控えめ）
       if (n.isRoot){ fill="rgba(255,206,58,0.16)"; stroke="rgba(255,206,58,0.6)"; txt="#d8b455"; }
@@ -1397,6 +1540,8 @@ function drawBoard(startFret, endFret, notes, ranges){
 
 const LEGEND_BASE  = `<span><i class="swatch root"></i>ルート音</span><span><i class="swatch tone"></i>スケール音</span>`;
 const LEGEND_CHORD = LEGEND_BASE + `<span><i class="swatch ct"></i>コードトーン</span>`;
+const LEGEND_TRIAD = `<span><i class="swatch t1"></i>1（ルート）</span><span><i class="swatch t3"></i>3・5</span>`
+  + `<span><i class="swatch tp"></i>その他のペンタ</span>`;
 const LEGEND_ROLE  = `<span><i class="swatch root"></i>R（ルート）</span><span><i class="swatch r3"></i>3rd</span>`
   + `<span><i class="swatch r5"></i>5th</span><span><i class="swatch r7"></i>7th</span><span><i class="swatch rt"></i>テンション</span>`;
 
@@ -1409,15 +1554,41 @@ function chordSpell(t, k){
   };
 }
 
+// トライアド（1・3・5）の度数と音名。ペンタ5音から2音を抜いた残り
+function triadSpell(k, scale){
+  const isMaj = scale === "major";
+  const ivs  = isMaj ? [0,4,7] : [0,3,7];
+  const degs = isMaj ? ["1","3","5"] : ["1","♭3","5"];
+  return { degs, names: ivs.map((iv,i)=>noteNameFor((k.pc+iv)%12, k.flat, degs[i])) };
+}
+// ペンタからトライアドを抜いた残りの2音（動画で言う「削る2音」）
+function pentaRestSpell(k, scale){
+  const isMaj = scale === "major";
+  const ivs  = isMaj ? [2,9] : [5,10];
+  const degs = isMaj ? ["2","6"] : ["4","♭7"];
+  return { degs, names: ivs.map((iv,i)=>noteNameFor((k.pc+iv)%12, k.flat, degs[i])) };
+}
+
 function updateChrome(){
   const k = KEYS[state.keyIndex];
   const scLabel = state.scale==="major" ? "メジャー" : "マイナー";
   const isChord = state.mode==="chord";
   const isTone  = state.mode==="tone";
+  const isTriad = state.mode==="triad";
   const nowEl = document.getElementById("now");
   const legend = document.getElementById("legend");
 
-  if (isTone){
+  if (isTriad){
+    const isMaj = state.scale==="major";
+    const chord = k.label + (isMaj ? "" : "m");
+    const tri = triadSpell(k, state.scale);
+    document.getElementById("scaleTitle").innerHTML = `${chord} <em>のトライアド</em>`;
+    document.getElementById("scaleNotes").textContent =
+      `${tri.degs.join("  ")}　＝　${tri.names.join("  ")}　｜　ペンタ ${scaleNotes(k.pc, state.scale, k.flat).join(" ")}`;
+    nowEl.innerHTML = `TRIAD <b class="r">${chord}</b> · <b>${POS_FORM[state.pos]}</b> · POS <b>${state.pos+1}</b>`;
+    legend.innerHTML = LEGEND_TRIAD;
+    renderTriadPanels();
+  } else if (isTone){
     const t = CHORD_TYPES[state.chordType];
     const cname = k.label + t.suffix;
     const sp = chordSpell(t, k);
@@ -1462,7 +1633,7 @@ function autoTypeTip(t, cname){
 const IV_NAMES_MAJOR = ["ルート","長2度","長3度","完全5度","長6度"];
 const IV_NAMES_MINOR = ["ルート","短3度","完全4度","完全5度","短7度"];
 function updateStudy(){
-  if (state.mode === "tone") return; // トーンモードでは暗記サポートを隠しているため更新不要
+  if (state.mode === "tone" || state.mode === "triad") return; // これらのモードでは暗記サポートを隠している
   const k = KEYS[state.keyIndex];
   const isMaj = state.scale==="major";
   const scLabel = isMaj ? "メジャー" : "マイナー";
@@ -1724,6 +1895,120 @@ function strumVoicing(v){
     setTimeout(()=>playMidi(midi, 1.1), d);
     d += 55;
   }
+}
+
+/* ============================================================
+   トライアドモード：ペンタの中の3音に絞る
+   ============================================================ */
+// 度数だけで書いた進行（基準キーからの半音数, 表示ラベル, 使うペンタ）
+const TRIAD_PROGS = [
+  {name:"マイナーブルース（動画と同じ）",
+   steps:[[0,"Im","minor"],[5,"IVm","minor"],[0,"Im","minor"],[7,"Vm","minor"],[5,"IVm","minor"],[0,"Im","minor"]]},
+  {name:"メジャーブルース",
+   steps:[[0,"I","major"],[5,"IV","major"],[0,"I","major"],[7,"V","major"],[5,"IV","major"],[0,"I","major"]]},
+  {name:"II - V - I（マイナー）",
+   steps:[[2,"IIm","minor"],[7,"Vm","minor"],[0,"Im","minor"]]},
+  {name:"カノン進行",
+   steps:[[0,"I","major"],[7,"V","major"],[9,"VIm","minor"],[5,"IV","major"]]},
+  {name:"王道進行（IV-V-IIIm-VIm）",
+   steps:[[5,"IV","major"],[7,"V","major"],[4,"IIIm","minor"],[9,"VIm","minor"]]},
+  {name:"小室進行（VIm-IV-V-I）",
+   steps:[[9,"VIm","minor"],[5,"IV","major"],[7,"V","major"],[0,"I","major"]]},
+];
+
+function renderProgChart(){
+  const sel = document.getElementById("progSel");
+  if (!sel.dataset.built){
+    sel.innerHTML = TRIAD_PROGS.map((p,i)=>`<option value="${i}">${p.name}</option>`).join("");
+    sel.dataset.built = "1";
+  }
+  sel.value = state.progIdx;
+  const prog = TRIAD_PROGS[state.progIdx];
+  const chips = prog.steps.map(([deg,label,scale])=>{
+    const pc = (state.progRoot + deg) % 12;
+    const ki = KEYS.findIndex(x=>x.pc===pc);
+    const name = KEYS[ki].label + (scale==="major" ? "" : "m");
+    const on = state.keyIndex===ki && state.scale===scale;
+    return `<button class="prog-chip" data-ki="${ki}" data-scale="${scale}" aria-pressed="${on}">${name}<small>${label}</small></button>`;
+  });
+  const chart = document.getElementById("progChart");
+  chart.innerHTML = chips.join(`<span class="prog-bar">/</span>`);
+  chart.querySelectorAll(".prog-chip").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.keyIndex = +b.dataset.ki;
+      state.scale = b.dataset.scale;
+      document.getElementById("keySel").value = state.keyIndex;
+      setSeg("scaleSeg","scale",state.scale);
+      afterChange();
+    });
+  });
+  const baseKey = KEYS[KEYS.findIndex(x=>x.pc===state.progRoot)].label;
+  document.getElementById("progSub").textContent = `キー ${baseKey}`;
+}
+
+function renderTriadPanels(){
+  const k = KEYS[state.keyIndex];
+  const isMaj = state.scale === "major";
+  const chord = k.label + (isMaj ? "" : "m");
+  const tri = triadSpell(k, state.scale);
+  const rest = pentaRestSpell(k, state.scale);
+  const penta = scaleNotes(k.pc, state.scale, k.flat);
+
+  /* ① いま指板に見えているもの */
+  document.getElementById("triadSub").textContent = `${chord} ＝ ${tri.names.join("・")}`;
+  document.getElementById("triadLead").innerHTML =
+    `<b>${chord} のトライアド</b>は <span class="hg">${tri.names.join("・")}</span> の<b>3音</b>。`
+    + `${k.label} ${isMaj?"メジャー":"マイナー"}ペンタ（${penta.join("・")}）から `
+    + `<b>${rest.names.join(" と ")}</b> を抜いた残りです。`
+    + `<br>この3音が<b class="hp">コードそのもの</b>。伴奏で ${chord} が鳴っているとき、`
+    + `この3つは<b>どこで弾いても、どれだけ伸ばしても外れません</b>。まずこの位置が指板で見えるようにします。`;
+
+  document.getElementById("triLegend").innerHTML =
+    `<div class="tri-key"><span class="tri-dot r">1</span><div><b>ルート（${tri.names[0]}）＝ 一番濃い</b>`
+    + `<span>コードの名前になっている音。ここを<b>0.何秒で見つけられる</b>のが最初の目標。</span></div></div>`
+    + `<div class="tri-key"><span class="tri-dot t">${tri.degs[1]}</span><div><b>3rd と 5th（${tri.names[1]}・${tri.names[2]}）＝ 薄く色つき</b>`
+    + `<span>ルートと合わせてコードを作る音。特に <b>${tri.degs[1]}</b> が明るい／暗いを決めます。</span></div></div>`
+    + `<div class="tri-key"><span class="tri-dot p">${rest.degs[0]}</span><div><b>残りのペンタ（${rest.names.join("・")}）＝ 数字だけ</b>`
+    + `<span>通り道として使う音。<b>着地はしない</b>と決めておくと迷いません。</span></div></div>`;
+
+  document.getElementById("triadNote").innerHTML =
+    `いま表示しているのは <span class="form-badge">POS ${state.pos+1} ／ ${POS_FORM[state.pos]}（${POS_FORM_HINT[state.pos]}）</span> の範囲です。`
+    + `上の「ポジション」で5つのフォームを切り替えられます。`
+    + `<br>コントロールの <b>「トライアドだけ」</b> をONにすると、残りの2音が消えて<b>3音だけ</b>になります。`
+    + `動画で言う「2音を削る」状態で、まずはこれで位置を体に入れるのが最短です。`;
+
+  /* ② コード進行に合わせて切り替える */
+  document.getElementById("progLead").innerHTML =
+    `ペンタ1発で通すと、どのコードでも<b>同じ響き</b>にしかなりません。`
+    + `コードが変わったら<b class="hp">トライアドも一緒に切り替える</b>——これがコード感の正体です。`
+    + `<br>下のコードをタップすると、そのコードのトライアドに切り替わります。`
+    + `<b>指板のどこに手が移動するか</b>を目で追ってください。`;
+  renderProgChart();
+  document.getElementById("progNote").innerHTML =
+    `※ 進行の基準キーは、上の「キー」で選んだ音になります。`
+    + `<br>次のコードが来たら、次のコードのルートへ行けばいい——<b>次のコードがあること自体が助けになります</b>。`;
+
+  /* ③ 覚えるべきポイント */
+  const points = [
+    `<b>ペンタ5音でも多い。</b>2音削った <span class="hg">1・${tri.degs[1]}・5</span> の3音が、そのコードの<b>芯</b>です。木で言えば根っこにあたる部分。`,
+    `<b>まずルートの位置を覚える。</b>演奏は0.何秒の世界なので、<span class="hg">金色の1</span>を<b>探さずに分かる</b>状態を目指します。`,
+    `<b>見え方の理想は3段階。</b>ルートが一番濃く → 3と5が薄く色つき → 残りのペンタは数字だけ。この見え方が身につくと、指板が勝手に整理されます。`,
+    `<b>コードが変わったら切り替える。</b>${chord} で ${tri.names.join("・")}、コードが変われば別の3音。切り替えの瞬間こそがコード感です。`,
+    `<b>5つのフォームすべてで。</b>E・D・C・A・G の各フォームでトライアドが見えるようになると、指板のどこにいても対応できます。`,
+    `<b>マイナーでもメジャーでも同じ。</b>3rdが♭するかどうかの違いだけで、やることは全く同じです。`,
+    `<b>残りの2音（${rest.names.join("・")}）は通り道。</b>使ってはいけない音ではなく、<b>着地しない音</b>と考えると混乱しません。`,
+  ];
+  document.getElementById("triadPoints").innerHTML = points.map(t=>`<li>${t}</li>`).join("");
+
+  /* ④ つまずきポイント */
+  const traps = [
+    `<b>まず「つまらない」と感じます。</b>音数が減るのでフレーズがダサく聞こえがち。ほぼ全員がここを通ります。`,
+    `<b>手癖で弾けなくなります。</b>ペンタでパラパラ弾けていた人ほど「あれ、ここか？」と引っかかります。<b>弾ける人ほど難しい</b>のがこの練習です。`,
+    `<b>音数が少なく、フレーズが繋がりにくい。</b>これは正常です。繋ぎは後から足せばいいので、先に位置を覚えます。`,
+    `<b>「ペンタでいいや」に戻りたくなります。</b>ここが分かれ道。戻ると、何を弾いても似たフレーズになります。`,
+    `<b>比べる相手は他人ではなく、昨日の自分。</b>1ポジションずつでいいので、位置が見えた分だけ前に進んでいます。`,
+  ];
+  document.getElementById("triadTraps").innerHTML = traps.map(t=>`<li>${t}</li>`).join("");
 }
 
 /* ============================================================
@@ -2189,7 +2474,11 @@ function initControls(){
     if(i===state.keyIndex) o.selected=true;
     sel.appendChild(o);
   });
-  sel.addEventListener("change", e=>{ state.keyIndex=+e.target.value; afterChange(); });
+  sel.addEventListener("change", e=>{
+    state.keyIndex = +e.target.value;
+    if (state.mode === "triad") state.progRoot = KEYS[state.keyIndex].pc; // 進行の基準キーも動かす
+    afterChange();
+  });
 
   // スケール
   document.querySelectorAll("#scaleSeg button").forEach(b=>{
@@ -2237,6 +2526,17 @@ function initControls(){
   document.getElementById("songPlay").addEventListener("click", playSongAll);
 
   // トーンモード：アルペジオ練習
+  // トライアドモード
+  document.getElementById("triadOnlyBtn").addEventListener("click", e=>{
+    state.triadOnly = !state.triadOnly;
+    e.currentTarget.setAttribute("aria-pressed", String(state.triadOnly));
+    e.currentTarget.innerHTML = `<span class="ic">◎</span> トライアドだけ ${state.triadOnly?"ON":"OFF"}`;
+    afterChange();
+  });
+  document.getElementById("progSel").addEventListener("change", e=>{
+    state.progIdx = +e.target.value;
+    renderProgChart();
+  });
   document.getElementById("toneQuizBtn").addEventListener("click", toggleToneQuiz);
   document.getElementById("tonePentaBtn").addEventListener("click", e=>{
     state.tonePenta = !state.tonePenta;
@@ -2257,6 +2557,7 @@ function syncModeUI(){
   const isChord = state.mode==="chord";
   const isSong  = state.mode==="song";
   const isTone  = state.mode==="tone";
+  const isTriad = state.mode==="triad";
   if (!isSong) stopSong();
   if (!isTone){
     if (state.toneQuiz){ state.toneQuiz = false; state.quiz = null; syncToneQuizBtn(); }
@@ -2266,6 +2567,9 @@ function syncModeUI(){
   document.getElementById("chordSec").classList.toggle("on", isChord);
   // トーンモード
   document.getElementById("toneSec").classList.toggle("on", isTone);
+  // トライアドモード
+  document.getElementById("triadSec").classList.toggle("on", isTriad);
+  document.getElementById("triadOnlyBtn").hidden = !isTriad;
   // コードピッカーはコード／トーンで共用
   document.getElementById("chordPicker").hidden = !(isChord || isTone);
   document.getElementById("scaleSeg").classList.toggle("disabled", isChord || isTone); // ペンタはコードから自動決定
@@ -2283,7 +2587,7 @@ function syncModeUI(){
 
   // ペンタ系UI（指板・暗記サポート・各コントロール）はソングモードでは隠す
   document.querySelector(".stage").style.display = isSong ? "none" : "";
-  document.querySelector(".study").style.display = (isSong || isTone) ? "none" : "";
+  document.querySelector(".study").style.display = (isSong || isTone || isTriad) ? "none" : "";
   document.getElementById("playBtn").style.display = (isSong || isTone) ? "none" : "";
   // クイズ・ペンタ重ねはトーンモード専用
   document.getElementById("toneQuizBtn").hidden = !isTone;
@@ -2296,6 +2600,7 @@ function syncModeUI(){
   const posF = document.getElementById("posField");
   if (isSong) posF.style.display = "none"; else posF.style.display = "";
 
+  if (isTriad) state.progRoot = KEYS[state.keyIndex].pc;   // 進行の基準キーを今のキーに合わせる
   if (isChord || isTone){
     // 現在のキー・コードに合わせてピッカーのタブを開く
     const pc = KEYS[state.keyIndex].pc;
